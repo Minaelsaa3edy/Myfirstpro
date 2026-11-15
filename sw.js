@@ -1,4 +1,4 @@
-/* Service worker of the accounts program (v6.9) — its ONLY job: when the phone's push service says "an alarm is due", wake up and show a notice.
+/* Service worker of the accounts program (v7.1) — its ONLY job: when the phone's push service says "an alarm is due", wake up and show a notice.
    Public file: it holds no key, no code and no data of the program. The names / times of the alarms are written by the page into this browser's own
    storage (IndexedDB "rm-push"); this file only reads them. Nothing here talks to any server. */
 'use strict';
@@ -25,6 +25,7 @@ async function onPush() {
   if (due.length) { body = due.map(x => (x.h || '') + (x.t ? ' — ' + x.t : '')).join('\n') + '\n' + (en ? 'Open the program to dismiss or snooze' : 'افتح البرنامج للإلغاء أو التذكير'); tag = 'rm-alarm-' + due[0].m; }
   else if (isTest) { title = en ? 'Alarm test' : 'تجربة المنبّه'; body = en ? 'Alarms will reach this phone even when it is locked.' : 'تمام: المنبّهات هتوصل للتليفون ده حتى لو مقفول.'; tag = 'rm-test'; }
   else body = en ? 'An alarm time has come. Open the program.' : 'جه ميعاد منبّه. افتح البرنامج.';
+  if (due.length) { try { await idbSet('lag', { s: Math.max(0, Math.round((Date.now() - due[0].m * 60000) / 1000)), at: Date.now() }); } catch (e) { /* ignore */ } } /* how late this notice came after its alarm minute: shown on the alarms screen */
   if (isTest) { try { await idbSet('test', 0); } catch (e) { /* ignore */ } }
   await self.registration.showNotification(title, { body, tag, renotify: true, requireInteraction: true, vibrate: [600, 250, 600, 250, 600, 250, 600], icon: 'icon-192.png', badge: 'icon-64.png', lang: en ? 'en' : 'ar', dir: en ? 'ltr' : 'rtl', timestamp: Date.now(), data: { m: due.map(x => x.m) } });
   if (due.length) { try { await idbSet('shown', shown.concat(due.map(x => x.m)).slice(-80)); } catch (e) { /* ignore */ } }
