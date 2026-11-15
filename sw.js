@@ -1,10 +1,11 @@
-/* Service worker of the accounts program (v7.3) — its ONLY job: when the phone's push service says "an alarm is due", wake up and show a notice.
+/* Service worker of the accounts program (v7.4) — its ONLY job: when the phone's push service says "an alarm is due", wake up and show a notice.
    Public file: it holds no key, no code and no data of the program. The names / times of the alarms are written by the page into this browser's own
    storage (IndexedDB "rm-push"); this file only reads them. Nothing here talks to any server. */
 'use strict';
 const DEV = /\/pushdev\/$/.test(self.registration.scope); /* the designer's page registers this same file in its own folder "pushdev/": its own push address and its own list */
 const DBN = DEV ? 'rm-push-dev' : 'rm-push', STN = 'st';
-const mine = w => { try { return DEV === /\/dev\.html$/.test(new URL(w.url).pathname); } catch (e) { return !DEV; } }; /* a window of the same program (the designer's page is dev.html) */
+const BASE = (() => { try { return new URL(DEV ? '../' : './', self.registration.scope).href; } catch (e) { return ''; } })(); /* the folder of the program: other pages of the same site (the same address, another folder) are not its windows */
+const mine = w => { try { return (!BASE || w.url.indexOf(BASE) === 0) && DEV === /\/dev\.html$/.test(new URL(w.url).pathname); } catch (e) { return !DEV; } }; /* a window of the same program (the designer's page is dev.html) */
 const idb = () => new Promise((ok, no) => { const q = indexedDB.open(DBN, 1); q.onupgradeneeded = () => q.result.createObjectStore(STN); q.onsuccess = () => ok(q.result); q.onerror = () => no(q.error); });
 const idbGet = async k => { const d = await idb(); try { return await new Promise(ok => { const r = d.transaction(STN).objectStore(STN).get(k); r.onsuccess = () => ok(r.result); r.onerror = () => ok(undefined); }); } finally { d.close(); } };
 const idbSet = async (k, v) => { const d = await idb(); try { await new Promise(ok => { const t = d.transaction(STN, 'readwrite'); t.objectStore(STN).put(v, k); t.oncomplete = () => ok(); t.onerror = () => ok(); t.onabort = () => ok(); }); } finally { d.close(); } };
@@ -24,7 +25,7 @@ async function onPush() {
   wins.forEach(w => { try { w.postMessage({ t: 'alarm' }); } catch (e) { /* page gone */ } }); /* an open page rings by itself and closes this notice */
   let title = en ? 'Alarm' : 'منبّه', body, tag = 'rm-alarm';
   if (due.length) { body = due.map(x => (x.h || '') + (x.t ? ' — ' + x.t : '')).join('\n') + '\n' + (en ? 'Open the program to dismiss or snooze' : 'افتح البرنامج للإلغاء أو التذكير'); tag = 'rm-alarm-' + due[0].m; }
-  else if (isTest) { title = en ? 'Alarm test' : 'تجربة المنبّه'; body = en ? 'Alarms will reach this phone even when it is locked.' : 'تمام: المنبّهات هتوصل للتليفون ده حتى لو مقفول.'; tag = 'rm-test'; }
+  else if (isTest) { title = en ? 'Alarm test' : 'تجربة المنبّه'; body = en ? 'Alarms will reach this device even when its screen is locked.' : 'تمام: المنبّهات هتوصل للجهاز ده حتى لو الشاشة مقفولة.'; tag = 'rm-test'; }
   else body = en ? 'An alarm time has come. Open the program.' : 'جه ميعاد منبّه. افتح البرنامج.';
   /* how long pushes take to reach this phone: the page reads these two notes and asks the server to send earlier when they are long (src/39-push.js, pushCalib) */
   if (due.length) { try { await idbSet('lag', { s: Math.round((Date.now() - due[0].m * 60000) / 1000), at: Date.now() }); } catch (e) { /* ignore */ } } /* seconds after the alarm minute (negative = before it) */
