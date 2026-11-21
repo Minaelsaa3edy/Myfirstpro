@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>body{margin:0}</style>
 <title>النسخة الأولى التجريبية لبرنامج المحاسبات لمواد البناء</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png?v=f938a712"><link rel="icon" type="image/png" sizes="64x64" href="icon-64.png?v=f938a712"><link rel="shortcut icon" href="favicon.ico?v=f938a712"><link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=f938a712"><link rel="manifest" href="manifest-dev.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Mina.Dev"><meta name="theme-color" content="#060a22">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png?v=f938a712"><link rel="icon" type="image/png" sizes="64x64" href="icon-64.png?v=f938a712"><link rel="shortcut icon" href="favicon.ico?v=f938a712"><link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=f938a712">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap">
 <style>
 :root {
@@ -2459,6 +2459,240 @@ tr.c-tot td { font-weight: 800; background: var(--tile); }
 
 
 
+/* ================================================================
+   DASHBOARD (عمران-style): dash-page, KPI cards, chart, notif
+   ================================================================ */
+:root {
+  --chart-in:  #22a05a;  /* green bars: وارد */
+  --chart-out: #e8923a;  /* orange bars: صادر */
+}
+
+/* Full dashboard page container */
+.dash-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2vw, 24px);
+  min-width: 0;
+}
+
+/* ── Top header: greeting + clock + action buttons ── */
+.dash-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  padding: clamp(16px, 2.2vw, 28px) clamp(18px, 2.8vw, 36px);
+  flex-wrap: wrap;
+}
+.dash-greeting {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dash-greet-text {
+  font-size: clamp(22px, 2.5vw, 36px);
+  font-weight: 800;
+  color: var(--fg);
+  text-wrap: balance;
+}
+.dash-clock-row { display: flex; align-items: baseline; gap: 6px; }
+.dash-time {
+  font-size: clamp(32px, 4.2vw, 60px);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg);
+  letter-spacing: .01em;
+  line-height: 1;
+}
+.dash-date {
+  font-size: clamp(12px, 1vw, 14px);
+  color: var(--fg2);
+  font-weight: 600;
+  margin-top: 2px;
+}
+.dash-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.dash-act-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 11px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+  border: 1.5px solid transparent;
+}
+.dash-act-btn .dab-icon {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+}
+.dash-act-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.dash-act-btn:active { transform: scale(.98); }
+.dash-act-in  { background: var(--blue); color: #fff; }
+.dash-act-out { background: var(--red); color: #fff; }
+.dash-act-new { background: var(--brand-a); color: #fff; }
+
+/* ── KPI row: 4 cards ── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(10px, 1.6vw, 20px);
+}
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: clamp(14px, 1.6vw, 22px) clamp(14px, 1.6vw, 22px) clamp(12px, 1.4vw, 18px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  transition: transform .18s, box-shadow .18s, border-color .18s;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  border-radius: 18px 18px 0 0;
+  background: var(--kpi-accent, var(--blue));
+}
+.kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-h); border-color: var(--kpi-accent, var(--blue)); }
+.kpi-card:active { transform: scale(.99); }
+
+.kpi-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 2px; }
+.kpi-label { font-size: clamp(11px, 0.85vw, 13px); font-weight: 600; color: var(--fg2); flex: 1; min-width: 0; }
+.kpi-icon {
+  width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; flex: none;
+}
+.kpi-icon svg { width: 20px; height: 20px; }
+
+.kpi-ic-blue  { background: color-mix(in srgb, var(--blue) 15%, transparent);  color: var(--blue); }
+.kpi-ic-teal  { background: color-mix(in srgb, var(--teal) 15%, transparent);  color: var(--teal); }
+.kpi-ic-red   { background: color-mix(in srgb, var(--red) 15%, transparent);   color: var(--red); }
+.kpi-ic-gold  { background: color-mix(in srgb, var(--amber) 18%, transparent); color: var(--amber); }
+
+.kpi-num {
+  font-size: clamp(22px, 2.6vw, 36px);
+  font-weight: 800;
+  color: var(--fg);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.kpi-unit { font-size: 12px; color: var(--fg2); font-weight: 600; }
+.kpi-sub  { font-size: clamp(10.5px, 0.8vw, 12px); color: var(--fg3); margin-top: 4px; }
+
+/* per-card accent */
+.kpi-debt  { --kpi-accent: var(--blue); }
+.kpi-due30 { --kpi-accent: var(--teal); }
+.kpi-late  { --kpi-accent: var(--red); }
+.kpi-cash  { --kpi-accent: var(--amber); }
+
+/* ── Bottom: notifications + chart ── */
+.dash-bottom {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: clamp(10px, 1.6vw, 20px);
+  flex: 1;
+  min-height: 0;
+  align-items: start;
+}
+.dash-notif, .dash-chart {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: clamp(14px, 1.6vw, 22px);
+  min-width: 0;
+}
+.dash-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fg);
+  margin-bottom: 14px;
+}
+.dash-panel-head svg { width: 18px; height: 18px; color: var(--blue-t); }
+.notif-cnt {
+  margin-right: auto;
+  min-width: 20px; height: 20px;
+  background: var(--red); color: #fff;
+  border-radius: 10px; font-size: 11px; font-weight: 800;
+  display: grid; place-items: center; padding: 0 5px;
+}
+.notif-list { display: flex; flex-direction: column; gap: 6px; }
+.notif-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 12px;
+  background: var(--tile);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  text-align: start;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+}
+.notif-item:hover { background: var(--row-hover); transform: translateX(-2px); }
+.notif-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; margin-top: 5px; }
+.notif-empty { font-size: 13px; color: var(--fg3); text-align: center; padding: 24px; }
+
+.chart-wrap {
+  width: 100%;
+  overflow: hidden;
+}
+.chart-wrap svg { width: 100%; height: auto; }
+.chart-legend {
+  display: flex;
+  gap: 18px;
+  justify-content: flex-end;
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fg2);
+}
+.leg-dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-inline-end: 4px; vertical-align: middle; }
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 800px) {
+  .dash-bottom { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dash-header { flex-direction: column; gap: 12px; }
+  .dash-actions { width: 100%; }
+  .dash-act-btn { flex: 1; justify-content: center; }
+  .kpi-num { font-size: 20px; }
+}
+@media (max-width: 380px) {
+  .kpi-row { grid-template-columns: 1fr; }
+}
+
 </style>
 </head><body>
 <div id="app" dir="rtl" lang="ar"><nav id="perm-sb" aria-label="القائمة الرئيسية"></nav><div id="main-col" style="flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden"><main id="view"></main><footer class="credit">تصميم بواسطة <bdi dir="ltr">MINA.N.F</bdi><span class="sep">·</span><bdi dir="ltr" class="ver">Version 8.49</bdi></footer></div></div><nav id="mob-nav" style="display:none" dir="rtl" aria-label="القائمة الرئيسية"><div id="mob-nav-scroll"></div></nav><div id="mob-more-sheet" dir="rtl"></div><div id="toasts" dir="rtl" aria-live="polite"></div><div id="modals" dir="rtl"></div>
@@ -3508,44 +3742,164 @@ function exportXLSX(x) {
 }
 
 /* ---------- Home ---------- */
-const TILES = [
-  /* daily operations first, then financials, then management */
-  ['invMenu', 'فاتورة جديدة', 'invoice'], ['debts', 'الديون والتحصيل', 'debts'], ['expenses', 'المصروفات والموردين', 'expenses'],
-  ['inventory', 'المخزن', 'stock'], ['customers', 'العملاء', 'customers'], ['empMenu', 'الموظفين', 'staff'],
-  ['reports', 'التقارير وحركة اليوم', 'reports'], ['cheques', 'الشيكات', 'cheque'], ['dashboard', 'لوحة الأرقام', 'dash'],
-  ['reminders', 'المنبّهات', 'alarm'], ['settings', 'الإعدادات', 'settings'],
-];
+/* TILES is declared in 98-nav.js */
+
+/* Greeting text based on time of day */
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'صباح الخير';
+  if (h < 17) return 'النهار الجميل';
+  if (h < 20) return 'مساء الخير';
+  return 'مساء النور';
+}
+
 function tickClock() {
   const c = $('#clk'); if (!c) return;
   const d = new Date();
-  const [t, ap] = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).split(' ');
-  c.textContent = t; $('#ampm').textContent = ap; $('#dt').textContent = dateAr(d);
+  const [t, ap] = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false }).split(' ');
+  c.textContent = t; if ($('#ampm')) $('#ampm').textContent = ap || ''; if ($('#dt')) $('#dt').textContent = dateAr(d);
 }
 setInterval(tickClock, 1000);
 
+/* Build bar-chart SVG for last 6 months income/expense */
+function homeChart() {
+  const months = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ y: d.getFullYear(), m: d.getMonth(), label: d.toLocaleDateString('ar-EG', { month: 'short' }) });
+  }
+  const data = months.map(mo => {
+    const inAmt = db.invoices.filter(inv => inv.status !== 'void' && inv.date && new Date(inv.date).getFullYear() === mo.y && new Date(inv.date).getMonth() === mo.m).reduce((s, inv) => s + (inv.net || 0), 0);
+    const outAmt = (db.expenses || []).filter(e => e.date && new Date(e.date).getFullYear() === mo.y && new Date(e.date).getMonth() === mo.m).reduce((s, e) => s + (e.amount || 0), 0);
+    return { label: mo.label, in: inAmt, out: outAmt };
+  });
+  const maxVal = Math.max(...data.map(d => Math.max(d.in, d.out)), 1);
+  const fmtK = v => v >= 1000 ? Math.round(v / 1000) + 'k' : Math.round(v);
+  const W = 480, H = 160, PAD = 10, BAR_W = 28, GAP = (W - PAD * 2) / 6;
+  const bars = data.map((d, i) => {
+    const x = PAD + i * GAP + (GAP - BAR_W * 2 - 4) / 2;
+    const hIn = Math.round((d.in / maxVal) * (H - 30));
+    const hOut = Math.round((d.out / maxVal) * (H - 30));
+    return `<rect x="${x}" y="${H - 20 - hIn}" width="${BAR_W}" height="${hIn}" rx="3" fill="var(--chart-in)"/>
+      <rect x="${x + BAR_W + 4}" y="${H - 20 - hOut}" width="${BAR_W}" height="${hOut}" rx="3" fill="var(--chart-out)"/>
+      <text x="${x + BAR_W}" y="${H - 4}" text-anchor="middle" font-size="10" fill="var(--fg2)">${d.label}</text>`;
+  }).join('');
+  const grid = [maxVal, maxVal / 2, 0].map(v => {
+    const y = H - 20 - Math.round((v / maxVal) * (H - 30));
+    return `<line x1="${PAD}" y1="${y}" x2="${W - PAD}" y2="${y}" stroke="var(--line)" stroke-dasharray="3,3"/>
+      <text x="${PAD - 2}" y="${y + 4}" text-anchor="end" font-size="9" fill="var(--fg3)">${fmtK(v)}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${grid}${bars}</svg>`;
+}
+
 screens.home = (p, v) => {
   const nl = notifications(), n = nl.length;
-  v.innerHTML = `<div class="home">
-    <header class="top${db.settings.company.trim() ? '' : ' nb'}">
-      <div class="clock"><b id="clk"></b><small id="ampm"></small><span class="dt" id="dt"></span>${whoChip()}</div>
-      <h1 class="brand">${brandHTML()}</h1>
-      <div class="tools">
-        <button class="tool" data-act="sound" aria-label="صوت الضغط" title="${db.settings.sound === false ? 'تشغيل صوت الضغط' : 'كتم صوت الضغط'}">${db.settings.sound === false ? ICON.mute : ICON.sound}</button>
-        <button class="tool" data-act="lang" aria-label="Language / اللغة" title="Language / اللغة"><span class="lt">${LANG === 'en' ? 'ع' : 'EN'}</span></button>
-        <button class="tool" data-act="theme" aria-label="الوضع الليلي" title="${isDark() ? 'الوضع النهاري' : 'الوضع الليلي'}">${isDark() ? ICON.sun : ICON.moon}</button>
-        <button class="tool" data-act="bell" aria-label="التنبيهات" title="التنبيهات">${ICON.bell}${unseenCount(nl) ? '<i class="dot"></i>' : ''}</button>
-        <button class="tool" data-act="logout" aria-label="تسجيل الخروج" title="تسجيل الخروج">${ICON.logout}</button>
+
+  /* ── KPI data ── */
+  const totalDebt = db.customers.reduce((s, c) => s + customerDebt(c.id), 0);
+  const activeCustomers = db.customers.filter(c => customerDebt(c.id) > 0).length;
+  const thirtyDays = new Date(); thirtyDays.setDate(thirtyDays.getDate() + 30);
+  const due30 = db.invoices.filter(i => i.status !== 'void' && i.dueDate && new Date(i.dueDate) <= thirtyDays).reduce((s, i) => s + (i.remaining || 0), 0);
+  const latePay = db.invoices.filter(i => i.status !== 'void' && i.dueDate && new Date(i.dueDate) < new Date() && (i.remaining || 0) > 0).reduce((s, i) => s + (i.remaining || 0), 0);
+  const lateCount = db.invoices.filter(i => i.status !== 'void' && i.dueDate && new Date(i.dueDate) < new Date() && (i.remaining || 0) > 0).length;
+  const cashIn = db.payments.reduce((s, p) => s + (p.amount || 0), 0);
+  const cashOut = (db.expenses || []).reduce((s, e) => s + (e.amount || 0), 0);
+  const cashBalance = cashIn - cashOut;
+
+  /* ── Chart ── */
+  const chart = homeChart();
+
+  v.innerHTML = `<div class="dash-page">
+
+    <!-- Top header: greeting + time + date + action buttons -->
+    <div class="dash-header">
+      <div class="dash-greeting">
+        <div class="dash-greet-text">${greeting()}</div>
+        <div class="dash-clock-row"><span class="dash-time" id="clk">00:00</span></div>
+        <div class="dash-date" id="dt"></div>
       </div>
-    </header>
-    ${backupDue() ? `<div class="note"><span>${backupDays() === Infinity ? 'لم تحمّل نسخة احتياطية من بياناتك بعد.' : `مرّ ${backupDays()} يوم على آخر نسخة احتياطية.`}</span><button class="mini" data-act="bkNow" type="button">تحميل نسخة الآن</button></div>` : ''}
+      <div class="dash-actions">
+        <button class="dash-act-btn dash-act-in" data-act="go" data-to="invMenu">
+          <span class="dab-icon">+</span> وارد
+        </button>
+        <button class="dash-act-btn dash-act-out" data-act="go" data-to="expenses">
+          <span class="dab-icon">−</span> صادر
+        </button>
+        <button class="dash-act-btn dash-act-new" data-act="go" data-to="invForm" data-p='{"mode":"new"}'>
+          <span class="dab-icon">+</span> عميل جديد
+        </button>
+      </div>
+    </div>
+
+    ${backupDue() ? `<div class="note" style="margin:0 0 12px"><span>${backupDays() === Infinity ? 'لم تحمّل نسخة احتياطية من بياناتك بعد.' : `مرّ ${backupDays()} يوم على آخر نسخة احتياطية.`}</span><button class="mini" data-act="bkNow" type="button">تحميل نسخة الآن</button></div>` : ''}
     <div id="bk-perm"></div>
-    <div class="tiles" data-n="${TILES.filter(t => canScreen(t[0])).length}">${TILES.filter(t => canScreen(t[0])).map(([to, label, ic]) => `<button class="tile" data-act="go" data-to="${to}">${ICON[ic]}<span>${label}</span></button>`).join('')}</div>
-    <section class="alerts" aria-label="التنبيهات">
-      <h2>${ICON.bell}<span>التنبيهات</span>${n ? `<b class="cnt">${n}</b>` : ''}</h2>
-      <div class="alist">${n ? nl.map(x => `<button class="al" data-act="go" data-to="${x.to}"><i style="background:${x.c}"></i><span>${esc(x.t)}</span></button>`).join('') : '<div class="none">لا توجد تنبيهات</div>'}</div>
-    </section>
+
+    <!-- 4 KPI cards -->
+    <div class="kpi-row">
+      <div class="kpi-card kpi-debt" data-act="go" data-to="debts" role="button" tabindex="0">
+        <div class="kpi-top">
+          <span class="kpi-label">متبقي عند العملاء</span>
+          <span class="kpi-icon kpi-ic-blue">${ICON.debts}</span>
+        </div>
+        <div class="kpi-num">${fmt(totalDebt)}</div>
+        <div class="kpi-unit">جنيه</div>
+        <div class="kpi-sub">${activeCustomers} عميل نشط</div>
+      </div>
+      <div class="kpi-card kpi-due30" data-act="go" data-to="debts" role="button" tabindex="0">
+        <div class="kpi-top">
+          <span class="kpi-label">مستحق خلال 30 يوم</span>
+          <span class="kpi-icon kpi-ic-teal">${ICON.cheque}</span>
+        </div>
+        <div class="kpi-num">${fmt(due30)}</div>
+        <div class="kpi-unit">جنيه</div>
+        <div class="kpi-sub">${due30 > 0 ? 'أقساط جاية من العملاء' : 'مفيش أقساط جاية'}</div>
+      </div>
+      <div class="kpi-card kpi-late" data-act="go" data-to="debts" role="button" tabindex="0">
+        <div class="kpi-top">
+          <span class="kpi-label">أقساط متأخرة</span>
+          <span class="kpi-icon kpi-ic-red">${ICON.docs}</span>
+        </div>
+        <div class="kpi-num">${fmt(latePay)}</div>
+        <div class="kpi-unit">جنيه</div>
+        <div class="kpi-sub">${lateCount > 0 ? `${lateCount} فاتورة متأخرة` : 'مفيش متأخرات'}</div>
+      </div>
+      <div class="kpi-card kpi-cash" data-act="go" data-to="reports" role="button" tabindex="0">
+        <div class="kpi-top">
+          <span class="kpi-label">رصيد الخزنة</span>
+          <span class="kpi-icon kpi-ic-gold">${ICON.reports}</span>
+        </div>
+        <div class="kpi-num">${fmt(cashBalance)}</div>
+        <div class="kpi-unit">جنيه</div>
+        <div class="kpi-sub">وارد ${fmt(cashIn)} · صادر ${fmt(cashOut)}</div>
+      </div>
+    </div>
+
+    <!-- Notifications + Chart -->
+    <div class="dash-bottom">
+      <section class="dash-notif" aria-label="التنبيهات">
+        <div class="dash-panel-head">
+          <span>${ICON.bell} التنبيهات</span>
+          ${n ? `<b class="notif-cnt">${n}</b>` : ''}
+        </div>
+        <div class="notif-list">${n
+          ? nl.slice(0, 8).map(x => `<button class="notif-item" data-act="go" data-to="${x.to}"><i class="notif-dot" style="background:${x.c}"></i><span>${esc(x.t)}</span></button>`).join('')
+          : '<div class="notif-empty">لا توجد تنبيهات</div>'}</div>
+      </section>
+      <section class="dash-chart" aria-label="المبيعات والمصروفات">
+        <div class="dash-panel-head"><span>الوارد والصادر آخر 6 شهور</span></div>
+        <div class="chart-wrap">${chart}</div>
+        <div class="chart-legend">
+          <span><i class="leg-dot" style="background:var(--chart-in)"></i> وارد</span>
+          <span><i class="leg-dot" style="background:var(--chart-out)"></i> صادر</span>
+        </div>
+      </section>
+    </div>
   </div>`;
+
   tickClock();
+  /* make KPI cards keyboard-navigable */
+  $$('.kpi-card[data-act]', v).forEach(c => { c.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); c.click(); } }; });
   if (BACKUP_OK && db.settings.autoDir) folderState().then(st => { const b = $('#bk-perm'); if (b && !st.ok) b.innerHTML = `<div class="note"><span>النسخ التلقائي متوقف حتى تسمح للمتصفح بالوصول للمجلد.</span><button class="mini" data-act="bkAllow" type="button">السماح</button></div>`; });
 };
 
@@ -4635,7 +4989,7 @@ function alarmForm(r, pre) {
    Only the program that runs with a code can use it: the server must know the code is genuine.
    The designer's own page (PUSH_DEV) does the same with a push-only code that it signs itself after asking for the designer's password once; it keeps its own
    storage, its own worker registration (scope "pushdev/") and its own list in the browser, so it never mixes with the customer program on the same phone. */
-const PUSH_SRV = 'https://script.google.com/macros/s/AKfycbzHDlLnx4lGrgU-MU7i1E6rSgqH3M3UmSfLLfIMRFRVCKvFXp5lq4NqtSoGH7FNaW_B/exec';
+const PUSH_SRV = '';
 const PUSH_DEV = true, PUSH_S = PUSH_DEV ? '.d' : '', PUSH_DEVDAYS = 180; /* the designer's page: how long the code it signs for itself lives */
 const PUSH_DAYS = 10, PUSH_MAXN = 120, PUSH_AGAIN = 6 * 3600000; /* how far ahead the server is told, how many times at most, and how often it is told again even if nothing changed */
 const PUSH_K = { on: 'rm.push' + PUSH_S, dev: 'rm.pushdev' + PUSH_S, at: 'rm.pushat' + PUSH_S, pk: 'rm.pushpk' + PUSH_S, tk: 'rm.pushtk.d', ld: 'rm.pushld' + PUSH_S, cal: 'rm.pushcal' + PUSH_S, lat: 'rm.pushlat' + PUSH_S };
@@ -9755,7 +10109,7 @@ EXP_LIST.push(['vchin', 'إيصالات استلام نقدية من العمل�
 
 /* ---------- Developer section (Settings): locked by the designer's password. Makes the access codes (demo or real program, any duration) and stops them.
    The password is never stored: it only unlocks (AES-GCM) the private signing key and the two program keys that ship encrypted inside this page. ---------- */
-const DEV = {"it": 250000, "s": "zcKOpFq5iG4BxBMZJ8ck2g", "iv": "NCT3MzQeShJDUFlQ", "c": "MAXjzz8P-Ct-gaxpe8CwqT83WYBFYV6BkShcv0qyCAHatRslSwPfo3OGkUMpbZFzw-P5pBow1YzBSLDfuA2taw_WRP1HHBPfT1vIqTk_Ch_6g_HgrznU9nUQCNOdIqXThhMkcUYehFz4kziZ6hiui3cnj0dG-h4nGqYImfjeQR97yh4GOZgU5cntK5Xk4oHfcTcbH7a0nxH0L6kZatg3HgadXSNJALvPP3-7IpgOqCM2XohjHAFCv93sijcOiwLa7vXl29eMNa3ViYht2V5otwIXTpTmnzKjfuzAD7w9sCYQDtbwhajQJ_2IHspFkeUbzz584dBdq6hmmdXsF6aVC5unFiOXICrXAEKXfQq01_Lqo23ax8LCnKP5rZSg8BoLmNNFIBTGmZMBt655EYM9fMFlPYWi0aQFeEi8unWZhy-f4zoGbNNUcW-9hO43S9ZW5ou2uHNWz2qwVIfALGUhGqcFfrFYplTKKR2ZS7F9FB3VDQ"}, SRV_URL = 'https://script.google.com/macros/s/AKfycbzHDlLnx4lGrgU-MU7i1E6rSgqH3M3UmSfLLfIMRFRVCKvFXp5lq4NqtSoGH7FNaW_B/exec', SITE0 = 'https://minaelsaa3edy.github.io/Myfirstpro/', TURL = 'accounts.dev.turl', DCODES = 'accounts.dev.codes';
+const DEV = {"it": 250000, "s": "zcKOpFq5iG4BxBMZJ8ck2g", "iv": "NCT3MzQeShJDUFlQ", "c": "MAXjzz8P-Ct-gaxpe8CwqT83WYBFYV6BkShcv0qyCAHatRslSwPfo3OGkUMpbZFzw-P5pBow1YzBSLDfuA2taw_WRP1HHBPfT1vIqTk_Ch_6g_HgrznU9nUQCNOdIqXThhMkcUYehFz4kziZ6hiui3cnj0dG-h4nGqYImfjeQR97yh4GOZgU5cntK5Xk4oHfcTcbH7a0nxH0L6kZatg3HgadXSNJALvPP3-7IpgOqCM2XohjHAFCv93sijcOiwLa7vXl29eMNa3ViYht2V5otwIXTpTmnzKjfuzAD7w9sCYQDtbwhajQJ_2IHspFkeUbzz584dBdq6hmmdXsF6aVC5unFiOXICrXAEKXfQq01_Lqo23ax8LCnKP5rZSg8BoLmNNFIBTGmZMBt655EYM9fMFlPYWi0aQFeEi8unWZhy-f4zoGbNNUcW-9hO43S9ZW5ou2uHNWz2qwVIfALGUhGqcFfrFYplTKKR2ZS7F9FB3VDQ"}, SRV_URL = '', SITE0 = '', TURL = 'accounts.dev.turl', DCODES = 'accounts.dev.codes';
 const FAR = 4102444800000; /* 2100-01-01: the end used when a permanent code is stopped */
 const OPEN_DAYS = { d: 7, r: 30 }; /* a code made with "from first open" can be typed in for this long (demo / real) */
 const MIN_MINS = 5, MAX_MINS = 10 * 525600; /* 5 minutes .. 10 years (or permanent) */
