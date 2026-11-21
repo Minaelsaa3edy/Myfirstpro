@@ -1,0 +1,114 @@
+:root {
+  /* ── Petrol / Gold light theme ── */
+  --bg: #d6e8f0;
+  --dot: #b8d4e4;
+  --surface: #e8f3f8;
+  --tile: #d0e6f0;
+  --line: #9ec8dc;
+  --fg: #04202e;
+  --fg2: #0a3d55;
+  --fg3: #2a6680;
+  --input: #cde5f0;
+  --input-line: #9ec8dc;
+  --input-focus: #e8f3f8;
+  --row-hover: #bcd8e8;
+  /* primary = petrol */
+  --blue: #0A4D68;
+  --blue-t: #0A4D68;
+  --blue-ring: rgba(10, 77, 104, 0.25);
+  --blue-soft: #c8dfe8;
+  --blue-soft-h: #a4c8d8;
+  --blue-line: #6aaac2;
+  --red: #c0392b;
+  --red-t: #c0392b;
+  --red-soft: #fceae8;
+  --red-line: #e8a89e;
+  --green: #1a7a3a;
+  --amber: #C9A227;
+  --orange: #d97b2a;
+  --teal: #0d6186;
+  --purple: #7a4db5;
+  --slate: #6a8094;
+  --sky: #0d6186;
+  /* brand: gold + petrol */
+  --brand-a: #C9A227;
+  --brand-b: #0A4D68;
+  --shadow: 0 1px 2px rgba(10, 30, 50, 0.06), 0 6px 18px rgba(10, 30, 50, 0.07);
+  --shadow-h: 0 2px 4px rgba(10, 30, 50, 0.08), 0 14px 28px rgba(10, 30, 50, 0.13);
+  --overlay: rgba(6, 15, 28, 0.5);
+  --font: "Tajawal", Tahoma, "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  /* ── Petrol / Gold dark theme ── */
+  --bg: #062e42;
+  --dot: #083d55;
+  --surface: #0A4D68;
+  --tile: #0d5a7a;
+  --line: rgba(201,162,39,.18);
+  --fg: #E8EEF8;
+  --fg2: #9aaac0;
+  --fg3: #5a6a80;
+  --input: #111b2a;
+  --input-line: #1e2e40;
+  --input-focus: #0d1a26;
+  --row-hover: #162030;
+  --blue: #0f7aaa;
+  --blue-t: #5bbde0;
+  --blue-ring: rgba(15, 122, 170, 0.35);
+  --blue-soft: #0d2a3a;
+  --blue-soft-h: #0f3a50;
+  --blue-line: #1a5a78;
+  --red: #e54b40;
+  --red-t: #ff8f85;
+  --red-soft: #2e1518;
+  --red-line: #5e2528;
+  --green: #3dcc70;
+  --amber: #e8ba30;
+  --orange: #e8923a;
+  --teal: #0d6186;
+  --purple: #b07ee0;
+  --slate: #8a9eb2;
+  --sky: #0f7aaa;
+  --brand-a: #e8ba30;
+  --brand-b: #5bbde0;
+  --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 6px 18px rgba(0,0,0,0.35);
+  --shadow-h: 0 2px 4px rgba(0,0,0,0.45), 0 14px 28px rgba(0,0,0,0.45);
+  --overlay: rgba(0, 0, 0, 0.65);
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #062e42;
+  --dot: #083d55;
+  --surface: #0A4D68;
+  --tile: #0d5a7a;
+  --line: rgba(201,162,39,.18);
+  --fg: #E8EEF8;
+  --fg2: #9aaac0;
+  --fg3: #5a6a80;
+  --input: #111b2a;
+  --input-line: #1e2e40;
+  --input-focus: #0d1a26;
+  --row-hover: #162030;
+  --blue: #0f7aaa;
+  --blue-t: #5bbde0;
+  --blue-ring: rgba(15, 122, 170, 0.35);
+  --blue-soft: #0d2a3a;
+  --blue-soft-h: #0f3a50;
+  --blue-line: #1a5a78;
+  --red: #e54b40;
+  --red-t: #ff8f85;
+  --red-soft: #2e1518;
+  --red-line: #5e2528;
+  --green: #3dcc70;
+  --amber: #e8ba30;
+  --orange: #e8923a;
+  --teal: #0d6186;
+  --purple: #b07ee0;
+  --slate: #8a9eb2;
+  --sky: #0f7aaa;
+  --brand-a: #e8ba30;
+  --brand-b: #5bbde0;
+  --shadow: 0 1px 2px rgba(0,0,0,0.4), 0 6px 18px rgba(0,0,0,0.35);
+  --shadow-h: 0 2px 4px rgba(0,0,0,0.45), 0 14px 28px rgba(0,0,0,0.45);
+  --overlay: rgba(0, 0, 0, 0.65);
+  color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: light; }

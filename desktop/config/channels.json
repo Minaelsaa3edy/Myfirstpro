@@ -1,0 +1,16 @@
+{
+  "production": {
+    "appId": "com.minanf.myfirstpro.desktop",
+    "productName": "Myfirstpro Desktop",
+    "userDataName": "Myfirstpro Desktop",
+    "slug": "Myfirstpro-Desktop",
+    "updateUrl": "https://minaelsaa3edy.github.io/Myfirstpro/desktop/update.json"
+  },
+  "developer": {
+    "appId": "com.minanf.myfirstpro.desktop.dev",
+    "productName": "Myfirstpro Desktop (Developer)",
+    "userDataName": "Myfirstpro Desktop Developer",
+    "slug": "Myfirstpro-Desktop-Developer",
+    "updateUrl": "https://minaelsaa3edy.github.io/Myfirstpro/desktop/dev/update.json"
+  }
+}

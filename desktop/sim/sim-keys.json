@@ -1,0 +1,34 @@
+{
+ "production": {
+  "pub": {
+   "kty": "EC",
+   "crv": "P-256",
+   "x": "v-I-pJSKTcj2pwNRSK22M_wss-M5yRJGIOqEf2XgHFs",
+   "y": "WWIgivhCj9v9_4MSuA3NUppcqr52VTmbUd1xVh9KBtI"
+  },
+  "priv": {
+   "kty": "EC",
+   "crv": "P-256",
+   "x": "v-I-pJSKTcj2pwNRSK22M_wss-M5yRJGIOqEf2XgHFs",
+   "y": "WWIgivhCj9v9_4MSuA3NUppcqr52VTmbUd1xVh9KBtI",
+   "d": "bU8JZ3OzvBUvlNeJKNLGHZqUzixxww5nbGm4yLLlMeo"
+  },
+  "pk": "6A5PNVVsBzYpLQKW5waBLp4i9bsoO2l4UQ_uamcR1aM"
+ },
+ "developer": {
+  "pub": {
+   "kty": "EC",
+   "crv": "P-256",
+   "x": "TXWU8-6dBq5tK1Ba7_nEWgyITXfHz8Wo3LCcvaw4wpE",
+   "y": "McoKsPtvydVfoexO1zKHfTwDnt6XkdD0gu50NBZOpEs"
+  },
+  "priv": {
+   "kty": "EC",
+   "crv": "P-256",
+   "x": "TXWU8-6dBq5tK1Ba7_nEWgyITXfHz8Wo3LCcvaw4wpE",
+   "y": "McoKsPtvydVfoexO1zKHfTwDnt6XkdD0gu50NBZOpEs",
+   "d": "CIEXmfiYwVnOxYO71FQVoZmwekSKJ0B8O2upo36yH68"
+  },
+  "pk": "b8PZkhZY9UWQpj5EboXzg2R5wMH9lclPT_Gb-I1oFsA"
+ }
+}

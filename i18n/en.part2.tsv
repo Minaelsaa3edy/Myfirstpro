@@ -1,0 +1,160 @@
+261	Profit from: {1}
+262	Loss on:
+263	Loss on: {1}
+264	Collection from customer:
+265	(Invoice
+266	,
+267	(Invoice {1})
+268	Collection from customer: {1}{2}
+269	Reservation deposit -
+270	Reservation deposit - {1}
+271	Reservation refund -
+272	Reservation refund - {1}: {2}
+273	Payment to supplier:
+274	Payment to supplier:
+275	Today's Activity
+276	Detailed Activity Report
+277	Shift Closing
+278	Tips & Discounts
+279	Sales Profit
+280	Sales Loss
+281	There is no activity today yet.
+282	Today's summary — {1}
+283	Today's sales ({1} invoices)
+284	Total in (collections)
+285	Total out (expenses & suppliers)
+286	Net cash
+287	Current position
+288	Value of goods in stock (at purchase price)
+289	Owed by customers
+290	Owed to suppliers
+291	Open reservation deposits
+292	Time
+293	From: {1} To: {2}
+294	EGP
+295	Discount ({1}%):
+296	Customer name:
+297	Invoice No.:
+298	Date:
+299	Paid in cash:
+300	Later collections:
+301	Remaining (credit):
+302	Deposit deducted — invoice {1}
+303	Paid in cash at issue — invoice {1}
+304	Collection
+305	— invoice
+306	— invoice {1}
+307	Collection{1}
+308	There are no transactions for this customer.
+309	Customer Account Statement
+310	Mobile:
+311	Address:
+312	Total purchases:
+313	Total settled:
+314	Number of invoices:
+315	Remaining on the customer:
+316	In
+317	Out
+318	Details of money in (collections)
+319	Total details of money in (collections)
+320	Details of money out (expenses)
+321	Total details of money out (expenses)
+322	VAT details
+323	Total VAT details
+324	Profit details
+325	Total profit details
+326	Loss details
+327	Total loss details
+328	Net cash details
+329	Total net cash details
+330	Overall activity details
+331	Total overall activity details
+332	Transaction
+333	Details of money out (expenses & supplier payments)
+334	Total out (expenses & supplier payments)
+335	Tips & discounts details
+336	Total tips & discounts
+337	Total VAT
+338	Total profit
+339	Total loss
+340	Total in:
+341	Total out:
+342	Tips and discounts paid:
+343	Discount carried over to the next shift:
+344	Net total:
+345	Discount carried over to the next shift (EGP)
+346	Printing and saving as PDF are available in the full program file.
+347	From date
+348	To date
+349	Today
+350	Yesterday
+351	This month
+352	Detailed_report_{1}_to_{2}
+353	Closing_{1}
+354	Add customer
+355	None
+356	Statement
+357	The register is empty. Add a customer or turn on "Save to register" when issuing an invoice.
+358	Delete customer
+359	"{1}" will be deleted from the register. Their old invoices remain as they are.
+360	Customer deleted
+361	Customer added
+362	Nothing remains to be collected
+363	On invoice No.
+364	It is recorded on the customer's open invoices from the oldest to the newest
+365	Collect from {1}
+366	Remaining:
+367	Amount collected (EGP)
+368	Record collection
+369	The amount is more than what remains on the invoice
+370	The amount is more than what remains on the customer
+371	Collected and recorded on invoice {1}
+372	Collection recorded
+373	Invoices with a balance
+374	Collection from customer
+375	All customers
+376	Account_statement_
+377	Account_statement_{1}_{2}
+378	Add a New Item
+379	Manage Items & Prices
+380	Change Display Size
+381	Data Clearing Options
+382	Business Details
+383	Security & PIN
+384	Backup
+385	Settings are open to any user. Set an admin PIN so it is asked for when saving any change.
+386	Set now
+387	Base price
+388	Save to list
+389	Enter the base price
+390	This item is already registered with the same unit
+391	Item saved
+392	Edit price of {1}
+393	No items registered. Add an item from "Add a New Item".
+394	Registered items list
+395	Edit price
+396	Edit the base price of ({1}):
+397	Enter a price greater than zero
+398	Updated successfully
+399	Are you sure you want to delete this item permanently?
+400	(its stock balance of {1} {2} will be deleted with it)
+401	Are you sure you want to delete this item permanently?{1}
+402	Yes
+403	Zoom in
+404	Zoom out
+405	Zoom in or out to fit the screen. This setting affects the display only and does not need the admin PIN.
+406	Reset (100%)
+407	Enter the business name
+408	Business name (shown at the top of the home screen, and on invoices and reports)
+409	VAT rate (%)
+410	Address (shown in the report header)
+411	Contact numbers (one per line; you can write a name before it, like "Manager: 0100…")
+412	Business logo (optional) — shown on both sides of the invoice and report header, as a light watermark, and on the logout screen
+413	Choose an image
+414	Remove logo
+415	Invoice header preview
+416	Save details
+417	Business name
+418	Logo
+419	No logo
+420	Choose an image file

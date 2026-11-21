@@ -1,0 +1,8 @@
+node_modules/
+build/
+dist/
+keys/*
+!keys/.gitkeep
+licenses/
+updates/
+*.log

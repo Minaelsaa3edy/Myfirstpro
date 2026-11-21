@@ -1,0 +1,15 @@
+{
+  "name": "accounts",
+  "productName": "Accounts",
+  "version": "2.2.0",
+  "description": "Accounts",
+  "main": "main.js",
+  "author": "MINA.N.F",
+  "license": "UNLICENSED",
+  "private": true,
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "electron": "^37.10.3",
+    "playwright-core": "^1.64.1"
+  }
+}

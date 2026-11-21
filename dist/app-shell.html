@@ -1,0 +1,468 @@
+<title>Mina.Dev — لوحة التحكم</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700;900&display=swap">
+<style>
+:root{
+  --petrol:#0A4D68;--petrol2:#0d6186;--petrol3:#0f7aaa;
+  --gold:#C9A227;--gold2:#e8ba30;
+  --void:#060A10;--void2:#0D1420;--void3:#111b2a;
+  --snow:#E8EEF8;--snow2:#9aaac0;--snow3:#5a6a80;
+  --glass:rgba(255,255,255,.05);--glass2:rgba(255,255,255,.08);
+  --border:rgba(255,255,255,.08);--border2:rgba(255,255,255,.13);
+  --sw:260px;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{height:100%}
+body{
+  min-height:100%;
+  background:var(--void);color:var(--snow);
+  font-family:'Noto Kufi Arabic',system-ui,sans-serif;
+  direction:rtl;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+.bg{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 40% 60% at 10% 90%,rgba(10,77,104,.28) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 10%,rgba(201,162,39,.07) 0%,transparent 70%);}
+
+/* ══ SIDEBAR ══ */
+.sidebar{
+  position:fixed;top:0;right:0;bottom:0;width:var(--sw);
+  background:var(--void2);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;z-index:200;
+  transition:transform .32s cubic-bezier(.22,1,.36,1);
+}
+.main-wrap{
+  padding-right:var(--sw);
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  position:relative;z-index:1;
+}
+
+/* sidebar logo */
+.sb-logo{padding:20px 18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;flex-shrink:0}
+.sb-mark{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--petrol),var(--petrol2));border:1px solid rgba(201,162,39,.2);display:flex;align-items:center;justify-content:center;font-size:1rem;font-weight:900;color:var(--gold);flex-shrink:0}
+.sb-name{font-size:.88rem;font-weight:700}
+.sb-role{font-size:.65rem;color:var(--snow2);margin-top:1px}
+
+/* nav */
+.sb-nav{flex:1;overflow-y:auto;padding:10px 8px;scrollbar-width:none}
+.sb-nav::-webkit-scrollbar{display:none}
+.sb-sec{font-size:.62rem;font-weight:700;color:var(--snow3);padding:12px 10px 5px;letter-spacing:.05em}
+.sb-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 11px;border-radius:9px;width:100%;text-align:right;
+  font-size:.82rem;font-weight:600;color:var(--snow2);
+  transition:background .15s,color .15s;position:relative;
+}
+.sb-item:hover{background:var(--glass2);color:var(--snow)}
+.sb-item.active{
+  background:linear-gradient(135deg,rgba(10,77,104,.5),rgba(13,97,134,.28));
+  color:var(--snow);border:1px solid rgba(10,77,104,.35);
+}
+.sb-item.active::before{
+  content:'';position:absolute;right:-8px;top:50%;transform:translateY(-50%);
+  width:3px;height:55%;border-radius:2px 0 0 2px;background:var(--gold);
+}
+.sb-ic{font-size:.95rem;width:18px;text-align:center;flex-shrink:0}
+.sb-badge{margin-right:auto;background:var(--gold);color:var(--void);font-size:.58rem;font-weight:700;padding:1px 5px;border-radius:999px}
+
+/* sidebar footer */
+.sb-foot{padding:12px 8px;border-top:1px solid var(--border);flex-shrink:0}
+.sb-user{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:9px;background:var(--glass);border:1px solid var(--border)}
+.sb-av{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,var(--petrol),var(--gold));display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;flex-shrink:0}
+.sb-uname{font-size:.78rem;font-weight:600}
+.sb-out{margin-right:auto;font-size:.68rem;color:var(--snow3);padding:3px 7px;border-radius:5px;transition:color .15s,background .15s}
+.sb-out:hover{color:var(--snow);background:var(--glass2)}
+
+/* overlay */
+.sb-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:150;display:none}
+.sb-ov.on{display:block}
+
+/* ══ FLOATING MENU BTN — mobile only, fixed corner ══ */
+.menu-btn{
+  display:none;
+  position:fixed;top:12px;right:12px;z-index:9999;
+  width:44px;height:44px;border-radius:12px;
+  background:var(--void2);
+  border:1px solid var(--border2);
+  box-shadow:0 4px 24px rgba(0,0,0,.6);
+  align-items:center;justify-content:center;
+  font-size:1.2rem;
+}
+
+/* ══ CONTENT ══ */
+.content{padding:20px;padding-bottom:60px}
+
+/* KPI scroll */
+.kpi-row{
+  display:flex;gap:12px;overflow-x:auto;
+  margin-bottom:20px;padding-bottom:4px;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch;
+}
+.kpi-row::-webkit-scrollbar{display:none}
+.kpi{
+  flex:0 0 160px;
+  background:var(--void2);border:1px solid var(--border);border-radius:14px;
+  padding:16px;position:relative;overflow:hidden;
+}
+.kpi::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--kc,var(--petrol)) 0%,transparent 60%);opacity:.08;pointer-events:none}
+.kpi-ic{position:absolute;top:12px;left:12px;font-size:1.2rem;opacity:.45}
+.kpi-lbl{font-size:.68rem;color:var(--snow2);font-weight:600;margin-bottom:8px}
+.kpi-val{font-size:1.45rem;font-weight:900;line-height:1;direction:ltr;text-align:right;font-variant-numeric:tabular-nums}
+.kpi-val .cur{font-size:.72rem;font-weight:600;color:var(--snow2);margin-left:3px}
+.kpi-tr{font-size:.68rem;margin-top:6px}
+.kpi-tr.up{color:#4ade80}.kpi-tr.dn{color:#f87171}.kpi-tr.ne{color:var(--snow2)}
+
+@media(min-width:700px){
+  .kpi-row{flex-wrap:wrap;overflow:visible}
+  .kpi{flex:1 1 160px}
+}
+
+/* panels */
+.panel{background:var(--void2);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:16px}
+.ph{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border)}
+.ph-t{font-size:.85rem;font-weight:700}
+.ph-a{font-size:.7rem;color:var(--gold);padding:3px 9px;border-radius:5px;border:1px solid rgba(201,162,39,.2)}
+
+/* chart */
+.chart-box{padding:16px;height:200px;position:relative}
+.chart-svg{width:100%;height:100%;overflow:visible}
+.ch-lbl{font-size:10px;fill:var(--snow3);font-family:inherit}
+.ch-dot{fill:var(--gold);stroke:var(--void2);stroke-width:2}
+.ch-tip{position:absolute;background:var(--void3);border:1px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:.72rem;pointer-events:none;opacity:0;transition:opacity .15s;white-space:nowrap}
+
+/* quick ops */
+.ops-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px}
+.op{display:flex;flex-direction:column;align-items:center;gap:5px;padding:14px 8px;border-radius:11px;background:var(--glass);border:1px solid var(--border);font-size:.75rem;font-weight:600;color:var(--snow2);transition:background .15s,color .15s,transform .15s}
+.op:hover{background:var(--glass2);color:var(--snow);transform:translateY(-2px)}
+.op-ic{font-size:1.3rem}
+.op.pr{background:linear-gradient(135deg,rgba(10,77,104,.5),rgba(13,97,134,.28));border-color:rgba(10,77,104,.4);color:var(--snow)}
+
+/* activity */
+.act-list{padding:0 18px 14px}
+.act-item{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid var(--border)}
+.act-item:last-child{border:none}
+.act-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;box-shadow:0 0 7px currentColor}
+.act-info{flex:1}
+.act-nm{font-size:.8rem;font-weight:600}
+.act-ds{font-size:.7rem;color:var(--snow2);margin-top:1px}
+.act-amt{font-size:.82rem;font-weight:700;direction:ltr;font-variant-numeric:tabular-nums;text-align:left}
+.act-tm{font-size:.65rem;color:var(--snow3)}
+
+/* treasury */
+.tr-list{padding:12px 18px;display:flex;flex-direction:column;gap:7px}
+.tr-item{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;border-radius:9px;background:var(--glass);border:1px solid var(--border)}
+.tr-lbl{display:flex;align-items:center;gap:7px;font-size:.8rem;font-weight:600}
+.tr-val{font-size:.88rem;font-weight:800;direction:ltr;font-variant-numeric:tabular-nums}
+.tr-bar-w{margin:0 18px 16px;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden}
+.tr-bar{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--petrol3),var(--gold));transition:width 1.2s cubic-bezier(.22,1,.36,1)}
+
+/* screens */
+.screen{display:none}.screen.on{display:block}
+.sph{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:360px;text-align:center;gap:10px;color:var(--snow2)}
+.sph-ic{font-size:2.6rem;opacity:.25}
+.sph-t{font-size:.95rem;font-weight:700;color:var(--snow);opacity:.45}
+.sph-s{font-size:.78rem;opacity:.5}
+
+/* desktop 2-col */
+@media(min-width:700px){
+  .desk-grid{display:grid;grid-template-columns:1fr 280px;gap:16px}
+}
+
+/* ══ MOBILE ══ */
+@media(max-width:700px){
+  :root{--sw:0px}
+  .sidebar{transform:translateX(110%)}
+  .sidebar.open{transform:translateX(0)}
+  .main-wrap{padding-right:0}
+  .menu-btn{display:flex!important}
+  .content{padding-top:68px}
+}
+
+/* animations */
+@keyframes fade-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.kpi{animation:fade-up .5s ease both}
+.kpi:nth-child(1){animation-delay:.05s}.kpi:nth-child(2){animation-delay:.1s}
+.kpi:nth-child(3){animation-delay:.15s}.kpi:nth-child(4){animation-delay:.2s}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}
+</style>
+
+<div class="bg" aria-hidden="true"></div>
+<div class="sb-ov" id="ov"></div>
+
+<!-- FLOATING MENU BTN (mobile) -->
+<button class="menu-btn" id="mbtn">☰</button>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sb">
+  <div class="sb-logo">
+    <div class="sb-mark">م</div>
+    <div><div class="sb-name">Mina.Dev</div><div class="sb-role">تجارة مواد البناء</div></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">الرئيسية</div>
+    <button class="sb-item active" data-s="dashboard"><span class="sb-ic">📊</span>لوحة الأرقام</button>
+    <button class="sb-item" data-s="daily"><span class="sb-ic">🌅</span>اليومية</button>
+    <div class="sb-sec">المبيعات</div>
+    <button class="sb-item" data-s="invoices"><span class="sb-ic">🧾</span>فاتورة جديدة</button>
+    <button class="sb-item" data-s="debts"><span class="sb-ic">💸</span>الديون والتحصيل<span class="sb-badge">7</span></button>
+    <div class="sb-sec">المصروفات</div>
+    <button class="sb-item" data-s="expenses"><span class="sb-ic">📋</span>المصروفات والموردين</button>
+    <button class="sb-item" data-s="cheques"><span class="sb-ic">🏦</span>الشيكات</button>
+    <div class="sb-sec">المخزن والموارد</div>
+    <button class="sb-item" data-s="inventory"><span class="sb-ic">📦</span>المخزن</button>
+    <button class="sb-item" data-s="customers"><span class="sb-ic">👥</span>العملاء</button>
+    <button class="sb-item" data-s="employees"><span class="sb-ic">👷</span>الموظفون</button>
+    <div class="sb-sec">التقارير</div>
+    <button class="sb-item" data-s="reports"><span class="sb-ic">📈</span>التقارير</button>
+    <button class="sb-item" data-s="settings"><span class="sb-ic">⚙️</span>الإعدادات</button>
+  </nav>
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-av">م</div>
+      <div><div class="sb-uname">المدير</div><div style="font-size:.62rem;color:var(--snow3)">مدير النظام</div></div>
+      <button class="sb-out">خروج</button>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main-wrap">
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="screen on" id="sc-dashboard">
+
+      <div class="kpi-row">
+        <div class="kpi" style="--kc:var(--petrol)">
+          <div class="kpi-ic">💰</div>
+          <div class="kpi-lbl">مبيعات اليوم</div>
+          <div class="kpi-val"><span class="num" data-t="18750">0</span><span class="cur">ج.م</span></div>
+          <div class="kpi-tr up">▲ 12% من أمس</div>
+        </div>
+        <div class="kpi" style="--kc:var(--gold)">
+          <div class="kpi-ic">💸</div>
+          <div class="kpi-lbl">إجمالي الديون</div>
+          <div class="kpi-val"><span class="num" data-t="43200">0</span><span class="cur">ج.م</span></div>
+          <div class="kpi-tr dn">▼ 3 عملاء مستحق</div>
+        </div>
+        <div class="kpi" style="--kc:#4ade80">
+          <div class="kpi-ic">📦</div>
+          <div class="kpi-lbl">أصناف المخزن</div>
+          <div class="kpi-val"><span class="num" data-t="124">0</span><span class="cur">صنف</span></div>
+          <div class="kpi-tr ne">— تحديث اليوم</div>
+        </div>
+        <div class="kpi" style="--kc:#a78bfa">
+          <div class="kpi-ic">🧾</div>
+          <div class="kpi-lbl">فواتير الشهر</div>
+          <div class="kpi-val"><span class="num" data-t="87">0</span><span class="cur">فاتورة</span></div>
+          <div class="kpi-tr up">▲ 5 اليوم</div>
+        </div>
+      </div>
+
+      <div class="desk-grid">
+        <div>
+          <div class="panel">
+            <div class="ph"><span class="ph-t">📉 المبيعات — آخر 7 أيام</span><button class="ph-a">تفصيلي</button></div>
+            <div class="chart-box">
+              <svg class="chart-svg" viewBox="0 0 540 170" preserveAspectRatio="none" id="csvg">
+                <defs>
+                  <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#0d6186" stop-opacity=".3"/>
+                    <stop offset="100%" stop-color="#0d6186" stop-opacity="0"/>
+                  </linearGradient>
+                  <linearGradient id="lg" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#0d6186"/>
+                    <stop offset="100%" stop-color="#C9A227"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="ch-tip" id="ctip"></div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="ph"><span class="ph-t">⚡ آخر الحركات</span><button class="ph-a">الكل</button></div>
+            <div class="act-list">
+              <div class="act-item">
+                <div class="act-dot" style="color:#4ade80;background:#4ade80"></div>
+                <div class="act-info"><div class="act-nm">فاتورة #0087 — محمد السيد</div><div class="act-ds">انترلوك 500م² · نقداً</div></div>
+                <div><div class="act-amt" style="color:#4ade80">+9,750</div><div class="act-tm">منذ 12 د</div></div>
+              </div>
+              <div class="act-item">
+                <div class="act-dot" style="color:#f87171;background:#f87171"></div>
+                <div class="act-info"><div class="act-nm">مصروف — نقل بضائع</div><div class="act-ds">سيارة نقل داخلية</div></div>
+                <div><div class="act-amt" style="color:#f87171">-450</div><div class="act-tm">منذ 38 د</div></div>
+              </div>
+              <div class="act-item">
+                <div class="act-dot" style="color:#C9A227;background:#C9A227"></div>
+                <div class="act-info"><div class="act-nm">تحصيل — عمر خالد</div><div class="act-ds">دفعة على الحساب · إنستاباي</div></div>
+                <div><div class="act-amt" style="color:#C9A227">+5,000</div><div class="act-tm">منذ 1 س</div></div>
+              </div>
+              <div class="act-item">
+                <div class="act-dot" style="color:#4ade80;background:#4ade80"></div>
+                <div class="act-info"><div class="act-nm">فاتورة #0086 — شركة الوادي</div><div class="act-ds">بلوك 200 طن · مؤجل 30 يوماً</div></div>
+                <div><div class="act-amt" style="color:var(--snow2)">36,000</div><div class="act-tm">منذ 2 س</div></div>
+              </div>
+              <div class="act-item">
+                <div class="act-dot" style="color:#a78bfa;background:#a78bfa"></div>
+                <div class="act-info"><div class="act-nm">راتب — أحمد محمود</div><div class="act-ds">صرف رواتب شهر نوفمبر</div></div>
+                <div><div class="act-amt" style="color:#f87171">-3,500</div><div class="act-tm">منذ 3 س</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="panel">
+            <div class="ph"><span class="ph-t">⚡ عمليات سريعة</span></div>
+            <div class="ops-grid">
+              <button class="op pr" data-s="invoices"><span class="op-ic">🧾</span>فاتورة جديدة</button>
+              <button class="op" data-s="debts"><span class="op-ic">💸</span>تحصيل دين</button>
+              <button class="op" data-s="expenses"><span class="op-ic">📋</span>تسجيل مصروف</button>
+              <button class="op" data-s="daily"><span class="op-ic">🌅</span>اليومية</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="ph"><span class="ph-t">🏧 الخزينة</span><button class="ph-a">تفاصيل</button></div>
+            <div class="tr-list">
+              <div class="tr-item">
+                <div class="tr-lbl">💵 الدرج النقدي</div>
+                <div class="tr-val" style="color:#4ade80"><span class="num" data-t="8420">0</span></div>
+              </div>
+              <div class="tr-item">
+                <div class="tr-lbl">📱 المحفظة</div>
+                <div class="tr-val" style="color:#C9A227"><span class="num" data-t="12300">0</span></div>
+              </div>
+              <div class="tr-item">
+                <div class="tr-lbl">🔁 إنستاباي</div>
+                <div class="tr-val" style="color:#60a5fa"><span class="num" data-t="6750">0</span></div>
+              </div>
+              <div class="tr-item">
+                <div class="tr-lbl">🏦 البنك</div>
+                <div class="tr-val" style="color:#a78bfa"><span class="num" data-t="55000">0</span></div>
+              </div>
+            </div>
+            <div class="tr-bar-w"><div class="tr-bar" id="tbar" style="width:0"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLACEHOLDER SCREENS -->
+    <div class="screen" id="sc-daily"><div class="sph"><div class="sph-ic">🌅</div><div class="sph-t">اليومية</div><div class="sph-s">داخل / خارج / متبقٍ لكل وسيلة دفع</div></div></div>
+    <div class="screen" id="sc-invoices"><div class="sph"><div class="sph-ic">🧾</div><div class="sph-t">فاتورة جديدة</div><div class="sph-s">إنشاء فاتورة بيع للعملاء</div></div></div>
+    <div class="screen" id="sc-debts"><div class="sph"><div class="sph-ic">💸</div><div class="sph-t">الديون والتحصيل</div><div class="sph-s">7 عملاء لديهم أرصدة مستحقة</div></div></div>
+    <div class="screen" id="sc-expenses"><div class="sph"><div class="sph-ic">📋</div><div class="sph-t">المصروفات والموردون</div><div class="sph-s">تسجيل المصروفات ومتابعة الموردين</div></div></div>
+    <div class="screen" id="sc-cheques"><div class="sph"><div class="sph-ic">🏦</div><div class="sph-t">الشيكات</div><div class="sph-s">الشيكات الواردة والصادرة</div></div></div>
+    <div class="screen" id="sc-inventory"><div class="sph"><div class="sph-ic">📦</div><div class="sph-t">المخزن</div><div class="sph-s">الأصناف والكميات والمستودعات</div></div></div>
+    <div class="screen" id="sc-customers"><div class="sph"><div class="sph-ic">👥</div><div class="sph-t">العملاء</div><div class="sph-s">ملفات العملاء وكشوف الحساب</div></div></div>
+    <div class="screen" id="sc-employees"><div class="sph"><div class="sph-ic">👷</div><div class="sph-t">الموظفون</div><div class="sph-s">الرواتب والسلف والمكافآت</div></div></div>
+    <div class="screen" id="sc-reports"><div class="sph"><div class="sph-ic">📈</div><div class="sph-t">التقارير</div><div class="sph-s">تقارير الحركة والدخل والخزينة</div></div></div>
+    <div class="screen" id="sc-settings"><div class="sph"><div class="sph-ic">⚙️</div><div class="sph-t">الإعدادات</div><div class="sph-s">بيانات الشركة والمستخدمين والصلاحيات</div></div></div>
+
+  </div>
+</div>
+
+<script>
+const sb=document.getElementById('sb'),ov=document.getElementById('ov'),mb=document.getElementById('mbtn');
+function openSB(){sb.classList.add('open');ov.classList.add('on');document.body.style.overflow='hidden'}
+function closeSB(){sb.classList.remove('open');ov.classList.remove('on');document.body.style.overflow=''}
+function handleOpen(e){e.preventDefault();e.stopPropagation();openSB()}
+mb.addEventListener('click',handleOpen);
+mb.addEventListener('touchend',handleOpen,{passive:false});
+ov.addEventListener('click',closeSB);
+ov.addEventListener('touchend',function(e){e.preventDefault();closeSB()},{passive:false});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSB()});
+
+const LABELS={dashboard:'لوحة الأرقام',daily:'اليومية',invoices:'فاتورة جديدة',
+  debts:'الديون والتحصيل',expenses:'المصروفات والموردين',cheques:'الشيكات',
+  inventory:'المخزن',customers:'العملاء',employees:'الموظفون',
+  reports:'التقارير',settings:'الإعدادات'};
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id==='sc-'+id));
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.toggle('active',i.dataset.s===id));
+  closeSB();
+}
+document.querySelectorAll('[data-s]').forEach(el=>el.addEventListener('click',()=>goTo(el.dataset.s)));
+
+function animNum(el){
+  const t=parseInt(el.dataset.t,10),dur=1100,s=performance.now();
+  const step=ts=>{
+    const p=Math.min((ts-s)/dur,1),e=1-Math.pow(1-p,3);
+    el.textContent=Math.round(e*t).toLocaleString('ar-EG');
+    if(p<1)requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+document.querySelectorAll('.num[data-t]').forEach((el,i)=>setTimeout(()=>animNum(el),80+i*60));
+setTimeout(()=>document.getElementById('tbar').style.width='70%',500);
+
+const vals=[12400,9800,15200,11300,18200,13700,18750];
+const days=['السبت','الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','اليوم'];
+const svg=document.getElementById('csvg'),tip=document.getElementById('ctip');
+const W=540,H=160,PL=10,PR=10,PT=8,PB=24;
+const iW=W-PL-PR,iH=H-PT-PB;
+const mx=Math.max(...vals)*1.18;
+const xS=i=>PL+i*(iW/(vals.length-1));
+const yS=v=>PT+iH*(1-v/mx);
+
+[0,1,2,3].forEach(i=>{
+  const y=PT+i*(iH/3);
+  const l=document.createElementNS('http://www.w3.org/2000/svg','line');
+  l.setAttribute('x1',PL);l.setAttribute('x2',W-PR);
+  l.setAttribute('y1',y);l.setAttribute('y2',y);
+  l.setAttribute('stroke','rgba(255,255,255,.04)');l.setAttribute('stroke-width','1');
+  svg.appendChild(l);
+});
+
+const aD='M '+xS(0)+','+yS(0)+' '+vals.map((v,i)=>'L '+xS(i)+','+yS(v)).join(' ')+' L '+xS(6)+','+yS(0)+' Z';
+const area=document.createElementNS('http://www.w3.org/2000/svg','path');
+area.setAttribute('d',aD);area.setAttribute('fill','url(#ag)');svg.appendChild(area);
+
+const pts=vals.map((v,i)=>xS(i)+','+yS(v)).join(' ');
+const poly=document.createElementNS('http://www.w3.org/2000/svg','polyline');
+poly.setAttribute('points',pts);poly.setAttribute('fill','none');
+poly.setAttribute('stroke','url(#lg)');poly.setAttribute('stroke-width','2.5');
+poly.setAttribute('stroke-linecap','round');poly.setAttribute('stroke-linejoin','round');
+svg.appendChild(poly);
+requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  try{const len=poly.getTotalLength();
+    poly.style.strokeDasharray=len;poly.style.strokeDashoffset=len;
+    poly.style.transition='stroke-dashoffset 1.1s cubic-bezier(.22,1,.36,1) .2s';
+    requestAnimationFrame(()=>poly.style.strokeDashoffset=0);
+  }catch(e){}
+}));
+
+const cw=document.querySelector('.chart-box');
+vals.forEach((v,i)=>{
+  const cx=xS(i),cy=yS(v);
+  const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+  c.setAttribute('cx',cx);c.setAttribute('cy',cy);c.setAttribute('r',4);
+  c.setAttribute('class','ch-dot');
+  c.style.opacity='0';c.style.transition=`opacity .3s ${.2+i*.07}s`;
+  svg.appendChild(c);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>c.style.opacity='1'));
+
+  const lbl=document.createElementNS('http://www.w3.org/2000/svg','text');
+  lbl.setAttribute('x',cx);lbl.setAttribute('y',H-4);
+  lbl.setAttribute('text-anchor','middle');lbl.setAttribute('class','ch-lbl');
+  lbl.textContent=days[i];svg.appendChild(lbl);
+
+  const hz=document.createElementNS('http://www.w3.org/2000/svg','rect');
+  hz.setAttribute('x',cx-30);hz.setAttribute('y',0);hz.setAttribute('width',60);hz.setAttribute('height',H);
+  hz.setAttribute('fill','transparent');hz.style.cursor='pointer';
+  hz.addEventListener('mouseenter',()=>{
+    tip.style.opacity='1';
+    tip.innerHTML=`<strong>${days[i]}</strong><br>${v.toLocaleString('ar-EG')} ج.م`;
+    const r=cw.getBoundingClientRect(),sr=svg.getBoundingClientRect();
+    tip.style.right=(r.width-(cx+28)*(sr.width/W))+'px';
+    tip.style.top=Math.max(0,(cy-18)*(sr.height/H))+'px';
+  });
+  hz.addEventListener('mouseleave',()=>tip.style.opacity='0');
+  svg.appendChild(hz);
+});
+</script>

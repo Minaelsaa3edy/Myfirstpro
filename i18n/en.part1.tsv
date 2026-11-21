@@ -1,0 +1,260 @@
+1	{1} EGP
+2	First Trial Version
+3	of the Building Materials Accounting Program
+4	Iron
+5	ton
+6	Delete
+7	Cancel
+8	Enter the admin PIN to save the changes
+9	Admin PIN
+10	Confirm
+11	Too many attempts. Try again in {1} seconds
+12	Incorrect PIN
+13	Back
+14	Item "{1}" is out of stock
+15	Stock of "{1}" is low: {2} {3}
+16	{1} owes {2}
+17	Latest alerts
+18	No alerts
+19	Click sound muted
+20	Click sound on
+21	Permanent
+22	year
+23	2 years
+24	years
+25	day
+26	2 days
+27	days
+28	days
+29	hour
+30	2 hours
+31	hours
+32	minute
+33	2 minutes
+34	minutes
+35	and
+36	New Invoice
+37	Expenses
+38	Reports & Today's Activity
+39	Stock
+40	Customers
+41	Settings
+42	Turn click sound on
+43	Mute click sound
+44	Light mode
+45	Dark mode
+46	Click sound
+47	Alerts
+48	Log out
+49	Add Goods
+50	View Stock
+51	Delete {1}
+52	The stock is empty. Add goods from "Add Goods".
+53	View Stock (current balances)
+54	Total value of goods in stock:
+55	Item
+56	Unit
+57	Available quantity
+58	Total value
+59	Action
+60	Delete item
+61	"{1}" and its balance ({2} {3}) will be deleted from stock.
+62	Item deleted
+63	bag
+64	sack
+65	meter
+66	m³
+67	piece
+68	kg
+69	liter
+70	pack
+71	Example: Cement
+72	Item details
+73	Item name
+74	Quantity
+75	Purchase price per unit (EGP)
+76	Selling price per unit (EGP)
+77	Supplier (optional)
+78	No supplier
+79	+ New supplier
+80	Paid to supplier now (EGP)
+81	Save goods
+82	— {1} remains due to the supplier
+83	— paid in full
+84	Total purchases {1}{2}
+85	unit
+86	Enter the item name
+87	Enter a quantity greater than zero
+88	Enter the selling price
+89	The amount paid to the supplier is more than the total purchases
+90	Purchases:
+91	Purchases: {1}
+92	Goods were added to stock
+93	Issue a New Invoice
+94	New customer
+95	Existing customer
+96	Direct cash sale
+97	Reservation deposit
+98	Invoices
+99	Choose the customer
+100	Search by name or mobile
+101	Search
+102	Name
+103	Mobile
+104	Address
+105	Balance due
+106	Select
+107	No results
+108	There are no registered customers. Issue a "New customer" invoice and turn on "Save to register".
+109	Direct cash sales
+110	The invoice is recorded under "{1}" and its net amount is collected in full in cash. It is not saved in the customer register.
+111	Save to register
+112	Customer name
+113	Mobile number
+114	Add items to the invoice
+115	Price
+116	Total
+117	+ Add another item
+118	Payments & discount
+119	Discount (%)
+120	Add VAT ({1}%)
+121	Paid in cash
+122	Account summary
+123	Items total:
+124	0 EGP
+125	Discount (%):
+126	VAT ({1}%):
+127	Net amount due:
+128	Deposit deducted:
+129	{1}Remaining
+130	Issue invoice
+131	– Choose an item –
+132	Price per {1}: {2} EGP
+133	Delete row
+134	Deduct reservation deposit ({1} EGP available)
+135	Choose the item first
+136	Only {1} remains available in stock!
+137	The amount paid is more than the amount due
+138	The item is not available
+139	Enter the customer name
+140	Add at least one item with a valid quantity
+141	The quantity requested of "{1}" is more than what is available
+142	Invoice issued and quantities deducted from stock
+143	Invoice No.
+144	Invoice No. {1}
+145	Remaining on the invoice
+146	The invoice is paid in full
+147	Customer:
+148	Collections on this invoice
+149	Date
+150	Amount collected
+151	Collect on invoice
+152	Customer statement
+153	Print / Save PDF
+154	All invoices
+155	Invoice_
+156	Invoice_{1}_{2}
+157	Invoices
+158	Search by invoice number or customer name
+159	No.
+160	Customer
+161	Net
+162	Paid
+163	Remaining
+164	View
+165	of which collected {1}
+166	Settled
+167	No invoices have been issued yet.
+168	Reservations
+169	Search by customer name or description
+170	New reservation deposit
+171	Description
+172	Deposit
+173	Used
+174	Open reservations
+175	Total deposit remaining
+176	Refunded {1}
+177	Ended
+178	Refund
+179	Delete reservation
+180	There are no reservations. Press "New reservation deposit".
+181	The reservation will be deleted (nothing was used or refunded from it). Refunding is recommended instead of deleting if the customer will take the deposit back.
+182	Example: Iron reservation
+183	Deposit amount (EGP)
+184	Record deposit
+185	Enter the deposit amount
+186	Reservation
+187	Reservation deposit recorded
+188	Refund deposit {1}
+189	Deposit remaining:
+190	Refunded amount (EGP)
+191	Record refund
+192	Enter an amount greater than zero
+193	The amount is more than the remaining deposit
+194	Deposit refunded and recorded as an outgoing expense
+195	Expense
+196	Tip / Discount
+197	Add Supplier
+198	Supplier name
+199	Mobile number (optional)
+200	Save
+201	Enter the supplier name
+202	This supplier is already registered
+203	Supplier added
+204	Record an expense or tip
+205	Suppliers & their payments
+206	Record an expense
+207	Example: transport, labor, electricity
+208	Add expense
+209	Item
+210	Amount (EGP)
+211	Type
+212	Note
+213	Add
+214	Amount
+215	Today's expenses
+216	This month's expenses
+217	Today's tips & discounts
+218	Delete expense
+219	No expenses recorded.
+220	This expense will be deleted from the record.
+221	Enter the expense item
+222	Added
+223	Suppliers
+224	Search by supplier name
+225	Supplier
+226	Purchases
+227	Owed to supplier
+228	Total owed to suppliers
+229	Number of suppliers
+230	Advance {1}
+231	Settled
+232	Payment
+233	Statement
+234	There are no suppliers. Add a supplier or choose one under "Add Goods".
+235	This supplier has recorded transactions and cannot be deleted
+236	Delete supplier
+237	"{1}" will be deleted from the record.
+238	Supplier deleted
+239	Owed to supplier:
+240	Nothing is currently owed to them — it will be recorded as an advance payment.
+241	Payment to supplier {1}
+242	Amount paid (EGP)
+243	Note (optional)
+244	Record payment
+245	Payment recorded
+246	Purchase: {1} ({2})
+247	Settle a payment
+248	Supplier statement
+249	There are no transactions for this supplier.
+250	Total purchases
+251	Total paid
+252	Purchases
+253	Paid
+254	Balance
+255	Customer
+256	Customer invoice:
+257	Customer invoice: {1}
+258	VAT:
+259	VAT: {1}
+260	Profit from:

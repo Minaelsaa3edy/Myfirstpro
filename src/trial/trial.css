@@ -1,0 +1,13 @@
+
+/* ---- trial build ---- */
+.tbar { position: sticky; top: 0; z-index: 25; display: flex; flex-wrap: wrap; gap: 4px 18px; justify-content: space-between; align-items: center; margin-bottom: 14px; padding: 9px 16px; border-radius: 12px; background: var(--blue-soft); color: var(--blue-t); border: 1px solid var(--blue-line); font-size: 13px; font-weight: 700; }
+.tbar b { font-size: 15px; font-weight: 800; letter-spacing: .05em; font-variant-numeric: tabular-nums; }
+.tbar.warn { background: var(--red-soft); color: var(--red-t); border-color: var(--red-line); }
+.trial-over { flex: 1; display: grid; place-items: center; min-height: 70vh; }
+.to-card { width: min(460px, 100%); text-align: center; background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow); padding: clamp(24px, 5vw, 40px); display: flex; flex-direction: column; gap: 12px; }
+.to-ic { width: 64px; height: 64px; margin: 0 auto; border-radius: 18px; display: grid; place-items: center; background: var(--blue-soft); color: var(--blue-t); }
+.to-ic svg { width: 34px; height: 34px; }
+.to-card h1 { margin: 6px 0 0; font-size: clamp(21px, 4.5vw, 27px); font-weight: 800; }
+.to-card p { margin: 0; color: var(--fg2); line-height: 1.9; font-size: 14.5px; }
+.to-card p.to-s { color: var(--fg3); font-size: 13px; }
+@media print { .tbar { display: none !important; } }
