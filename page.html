@@ -142,68 +142,124 @@ svg { display: block; }
 #view { flex: 1; display: flex; flex-direction: column; min-width: 0; padding-inline: clamp(0px, 2.4vw, 36px); padding-block: clamp(14px, 2.6vw, 30px); overflow-y: auto; }
 
 /* ---------- Permanent Sidebar ---------- */
+:root {
+  --petrol:#0A4D68; --petrol2:#0d6186; --petrol3:#0f7aaa;
+  --gold:#C9A227; --gold2:#e8ba30;
+  --void:#060A10; --void2:#0D1420; --void3:#111b2a;
+  --sb-snow:#E8EEF8; --sb-snow2:#9aaac0; --sb-snow3:#5a6a80;
+  --sb-glass:rgba(255,255,255,.05); --sb-glass2:rgba(255,255,255,.08);
+  --sb-border:rgba(255,255,255,.08);
+  --sb-w: 185px;
+}
 #perm-sb {
-  width: 185px;
-  min-width: 185px;
-  background: var(--surface);
-  border-left: 1px solid var(--line);
+  width: var(--sb-w);
+  min-width: var(--sb-w);
+  background: var(--void2);
+  border-left: 1px solid var(--sb-border);
   display: flex;
   flex-direction: column;
-  padding: 10px 7px 10px;
-  gap: 2px;
-  overflow-y: auto;
   position: sticky;
   top: 0;
   height: 100vh;
-  box-shadow: var(--shadow);
   z-index: 10;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
+#perm-sb::-webkit-scrollbar { display: none; }
 #perm-sb .sb-brand {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--fg3);
-  text-align: center;
-  padding: 6px 4px 10px;
-  border-bottom: 1px solid var(--line);
-  margin-bottom: 4px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 12px 14px;
+  border-bottom: 1px solid var(--sb-border);
+  flex-shrink: 0;
 }
+#perm-sb .sb-mark {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--petrol), var(--petrol2));
+  border: 1px solid rgba(201,162,39,.25);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .85rem; font-weight: 900;
+  color: var(--gold); flex-shrink: 0;
+}
+#perm-sb .sb-title { font-size: .78rem; font-weight: 700; color: var(--sb-snow); }
+#perm-sb .sb-sub { font-size: .6rem; color: var(--sb-snow2); margin-top: 1px; }
+.psb-nav { flex: 1; overflow-y: auto; padding: 8px 7px; scrollbar-width: none; }
+.psb-nav::-webkit-scrollbar { display: none; }
 .psb-item {
   display: flex;
   align-items: center;
   gap: 9px;
   padding: 9px 10px;
-  border-radius: 10px;
+  border-radius: 9px;
   cursor: pointer;
-  border: none;
+  border: 1px solid transparent;
   background: none;
   width: 100%;
   text-align: right;
-  color: var(--fg2);
+  color: var(--sb-snow2);
   font-family: var(--font);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   transition: background .13s, color .13s;
   -webkit-tap-highlight-color: transparent;
   line-height: 1.3;
+  position: relative;
 }
-.psb-item:hover { background: var(--tile); color: var(--fg); }
+.psb-item:hover { background: var(--sb-glass2); color: var(--sb-snow); }
 .psb-item.active {
-  background: var(--blue-soft);
-  color: var(--blue-t, var(--blue));
-  font-weight: 700;
+  background: linear-gradient(135deg, rgba(10,77,104,.5), rgba(13,97,134,.28));
+  color: var(--sb-snow);
+  border-color: rgba(10,77,104,.35);
 }
-.psb-item svg { width: 22px; height: 22px; flex-shrink: 0; }
+.psb-item.active::after {
+  content: '';
+  position: absolute;
+  left: -7px; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 55%;
+  border-radius: 0 2px 2px 0;
+  background: var(--gold);
+}
+.psb-item svg { width: 20px; height: 20px; flex-shrink: 0; }
 .psb-item span { flex: 1; }
+/* Sub-items inside sidebar (e.g. invMenu children) */
+.psb-sub-list { display: none; flex-direction: column; gap: 1px; padding: 2px 0 2px 8px; }
+.psb-sub-list.open { display: flex; }
+.psb-sub-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px 8px 8px;
+  border-radius: 7px;
+  cursor: pointer; border: none; background: none;
+  width: 100%; text-align: right;
+  color: var(--sb-snow3);
+  font-family: var(--font); font-size: 11.5px; font-weight: 600;
+  transition: background .12s, color .12s;
+  -webkit-tap-highlight-color: transparent;
+}
+.psb-sub-item:hover { background: var(--sb-glass2); color: var(--sb-snow); }
+.psb-sub-item.active { color: var(--gold); }
+.psb-sub-item svg { width: 17px; height: 17px; flex-shrink: 0; opacity: .75; }
+.psb-divider { height: 1px; background: var(--sb-border); margin: 4px 10px; }
+.psb-back-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 10px; border-radius: 7px;
+  cursor: pointer; border: none; background: none;
+  width: 100%; text-align: right;
+  color: var(--gold); font-family: var(--font);
+  font-size: 11px; font-weight: 700;
+  -webkit-tap-highlight-color: transparent;
+  margin-bottom: 3px;
+}
+.psb-back-btn:hover { background: var(--sb-glass); }
 
 @media (max-width: 640px) {
-  #perm-sb { width: 52px; min-width: 52px; padding: 8px 4px; gap: 1px; }
-  #perm-sb .sb-brand { display: none; }
-  .psb-item { padding: 9px 0; justify-content: center; gap: 0; border-radius: 10px; }
-  .psb-item span { display: none; }
-  .psb-item svg { width: 24px; height: 24px; }
+  :root { --sb-w: 50px; }
+  #perm-sb .sb-brand, .psb-item span, .psb-sub-list, .psb-divider { display: none !important; }
+  .psb-item { padding: 9px 0; justify-content: center; gap: 0; border-radius: 9px; }
+  .psb-item.active::after { display: none; }
+  .psb-item svg { width: 22px; height: 22px; }
+  .psb-nav { padding: 6px 4px; }
 }
 
 /* ---------- Credit ---------- */
@@ -2196,29 +2252,99 @@ const TILES = [
 ];
 
 /* ---------- Permanent Sidebar ---------- */
-(function buildPermSidebar() {
+/* Sub-items for menu screens that expand inside the sidebar */
+const PSB_SUBS = {
+  invMenu: [
+    { label: 'عميل جديد',           screen: 'invForm',   p: {mode:'new'},    icon: 'userPlus' },
+    { label: 'عميل مسجل مسبقاً',   screen: 'invPick',   p: {},              icon: 'userCheck' },
+    { label: 'بيع نقدي مباشر',      screen: 'invForm',   p: {mode:'cash'},   icon: 'cashSale' },
+    { label: 'إيداع حجز',           screen: 'bookings',  p: {},              icon: 'booking' },
+    { label: 'فواتير',              screen: 'invList',   p: {},              icon: 'docs' },
+    { label: 'عروض الأسعار',         screen: 'quotes',    p: {},              icon: 'docDollar' },
+    { label: 'التوصيل',             screen: 'deliveries',p: {},              icon: 'truck' },
+    { label: 'صور وإشعارات العملاء',screen: 'receipts',  p: {},              icon: 'rcpt' },
+  ],
+  empMenu: [
+    { label: 'موظف جديد',           screen: 'empForm',   p: {mode:'new'},    icon: 'userPlus' },
+    { label: 'سجل الموظفين',        screen: 'empList',   p: {},              icon: 'staff' },
+    { label: 'الرواتب',             screen: 'payroll',   p: {},              icon: 'reports' },
+  ],
+};
+
+let _psbOpenSub = null; /* which TILE is currently expanded */
+
+function buildPermSidebar() {
   const sb = document.getElementById('perm-sb');
   if (!sb) return;
-  sb.innerHTML = `<div class="sb-brand">MINA</div>` +
-    TILES.map(([screen, label, icon]) => {
-      const svgIcon = ICON[icon] || ICON.invoice;
-      return `<button class="psb-item" data-screen="${screen}" title="${label}" aria-label="${label}">${svgIcon}<span>${label}</span></button>`;
-    }).join('');
-  sb.addEventListener('click', e => {
+  sb.innerHTML = `
+    <div class="sb-brand">
+      <div class="sb-mark">M</div>
+      <div><div class="sb-title">Mina.Dev</div><div class="sb-sub">مواد البناء</div></div>
+    </div>
+    <div class="psb-nav" id="psb-nav"></div>`;
+  renderPsbNav();
+
+  function handleNav(e) {
     const btn = e.target.closest('.psb-item');
-    if (!btn) return;
-    go(btn.dataset.screen);
-  });
-  sb.addEventListener('touchend', e => {
-    const btn = e.target.closest('.psb-item');
+    const sub = e.target.closest('.psb-sub-item');
+    const back = e.target.closest('.psb-back-btn');
+    if (back) { e.preventDefault(); _psbOpenSub = null; renderPsbNav(); return; }
+    if (sub) {
+      e.preventDefault();
+      const s = sub.dataset.screen, p = JSON.parse(sub.dataset.p || '{}');
+      go(s, p);
+      return;
+    }
     if (!btn) return;
     e.preventDefault();
-    go(btn.dataset.screen);
-  }, { passive: false });
-})();
+    const screen = btn.dataset.screen;
+    if (PSB_SUBS[screen]) {
+      /* toggle sub-list */
+      _psbOpenSub = (_psbOpenSub === screen) ? null : screen;
+      renderPsbNav();
+      go(screen); /* also navigate to the menu screen */
+    } else {
+      _psbOpenSub = null;
+      renderPsbNav();
+      go(screen);
+    }
+  }
+  sb.addEventListener('click', handleNav);
+  sb.addEventListener('touchend', e => { handleNav(e); }, { passive: false });
+}
+
+function renderPsbNav() {
+  const nav = document.getElementById('psb-nav');
+  if (!nav) return;
+  nav.innerHTML = TILES.map(([screen, label, icon]) => {
+    const svgIcon = ICON[icon] || ICON.invoice;
+    const hasSubs = !!PSB_SUBS[screen];
+    const isOpen = _psbOpenSub === screen;
+    let html = `<button class="psb-item" data-screen="${screen}" title="${label}" aria-label="${label}">
+      ${svgIcon}<span>${label}</span></button>`;
+    if (hasSubs && isOpen) {
+      html += `<div class="psb-sub-list open">
+        <button class="psb-back-btn">← رجوع</button>` +
+        PSB_SUBS[screen].map(s => {
+          const ic = ICON[s.icon] || '';
+          return `<button class="psb-sub-item" data-screen="${s.screen}" data-p='${JSON.stringify(s.p)}' title="${s.label}">${ic}<span>${s.label}</span></button>`;
+        }).join('') + `</div>`;
+    }
+    return html;
+  }).join('');
+}
+
+buildPermSidebar();
 
 function updateSidebarActive(screenName) {
   document.querySelectorAll('.psb-item').forEach(btn => {
+    /* parent tile active if screen matches or if it's the open sub-menu tile */
+    const tile = btn.dataset.screen;
+    const isSelf = tile === screenName;
+    const isParent = PSB_SUBS[tile] && PSB_SUBS[tile].some(s => s.screen === screenName);
+    btn.classList.toggle('active', isSelf || isParent);
+  });
+  document.querySelectorAll('.psb-sub-item').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.screen === screenName);
   });
 }
