@@ -1,42 +1,162 @@
 /* ---------- Home ---------- */
-const TILES = [
-  /* daily operations first, then financials, then management */
-  ['invMenu', 'فاتورة جديدة', 'invoice'], ['debts', 'الديون والتحصيل', 'debts'], ['expenses', 'المصروفات والموردين', 'expenses'],
-  ['inventory', 'المخزن', 'stock'], ['customers', 'العملاء', 'customers'], ['empMenu', 'الموظفين', 'staff'],
-  ['reports', 'التقارير وحركة اليوم', 'reports'], ['cheques', 'الشيكات', 'cheque'], ['dashboard', 'لوحة الأرقام', 'dash'],
-  ['reminders', 'المنبّهات', 'alarm'], ['settings', 'الإعدادات', 'settings'],
-];
+/* TILES is declared in 98-nav.js */
+
+/* Greeting text based on time of day */
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'صباح الخير';
+  if (h < 17) return 'النهار الجميل';
+  if (h < 20) return 'مساء الخير';
+  return 'مساء النور';
+}
+
 function tickClock() {
   const c = $('#clk'); if (!c) return;
   const d = new Date();
-  const [t, ap] = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }).split(' ');
-  c.textContent = t; $('#ampm').textContent = ap; $('#dt').textContent = dateAr(d);
+  const [t, ap] = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: false }).split(' ');
+  c.textContent = t; if ($('#ampm')) $('#ampm').textContent = ap || ''; if ($('#dt')) $('#dt').textContent = dateAr(d);
 }
 setInterval(tickClock, 1000);
 
+/* Build bar-chart SVG for last 6 months income/expense */
+function homeChart() {
+  const months = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({ y: d.getFullYear(), m: d.getMonth(), label: d.toLocaleDateString('ar-EG', { month: 'short' }) });
+  }
+  const data = months.map(mo => {
+    const inAmt = db.invoices.filter(inv => inv.status !== 'void' && inv.date && new Date(inv.date).getFullYear() === mo.y && new Date(inv.date).getMonth() === mo.m).reduce((s, inv) => s + (inv.net || 0), 0);
+    const outAmt = (db.expenses || []).filter(e => e.date && new Date(e.date).getFullYear() === mo.y && new Date(e.date).getMonth() === mo.m).reduce((s, e) => s + (e.amount || 0), 0);
+    return { label: mo.label, in: inAmt, out: outAmt };
+  });
+  const maxVal = Math.max(...data.map(d => Math.max(d.in, d.out)), 1);
+  const fmtK = v => v >= 1000 ? Math.round(v / 1000) + 'k' : Math.round(v);
+  const W = 480, H = 160, PAD = 10, BAR_W = 28, GAP = (W - PAD * 2) / 6;
+  const bars = data.map((d, i) => {
+    const x = PAD + i * GAP + (GAP - BAR_W * 2 - 4) / 2;
+    const hIn = Math.round((d.in / maxVal) * (H - 30));
+    const hOut = Math.round((d.out / maxVal) * (H - 30));
+    return `<rect x="${x}" y="${H - 20 - hIn}" width="${BAR_W}" height="${hIn}" rx="3" fill="var(--chart-in)"/>
+      <rect x="${x + BAR_W + 4}" y="${H - 20 - hOut}" width="${BAR_W}" height="${hOut}" rx="3" fill="var(--chart-out)"/>
+      <text x="${x + BAR_W}" y="${H - 4}" text-anchor="middle" font-size="10" fill="var(--fg2)">${d.label}</text>`;
+  }).join('');
+  const grid = [maxVal, maxVal / 2, 0].map(v => {
+    const y = H - 20 - Math.round((v / maxVal) * (H - 30));
+    return `<line x1="${PAD}" y1="${y}" x2="${W - PAD}" y2="${y}" stroke="var(--line)" stroke-dasharray="3,3"/>
+      <text x="${PAD - 2}" y="${y + 4}" text-anchor="end" font-size="9" fill="var(--fg3)">${fmtK(v)}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${grid}${bars}</svg>`;
+}
+
 screens.home = (p, v) => {
   const nl = notifications(), n = nl.length;
-  v.innerHTML = `<div class="home">
-    <header class="top${db.settings.company.trim() ? '' : ' nb'}">
-      <div class="clock"><b id="clk"></b><small id="ampm"></small><span class="dt" id="dt"></span>${whoChip()}</div>
-      <h1 class="brand">${brandHTML()}</h1>
-      <div class="tools">
-        <button class="tool" data-act="sound" aria-label="صوت الضغط" title="${db.settings.sound === false ? 'تشغيل صوت الضغط' : 'كتم صوت الضغط'}">${db.settings.sound === false ? ICON.mute : ICON.sound}</button>
-        <button class="tool" data-act="lang" aria-label="Language / اللغة" title="Language / اللغة"><span class="lt">${LANG === 'en' ? 'ع' : 'EN'}</span></button>
-        <button class="tool" data-act="theme" aria-label="الوضع الليلي" title="${isDark() ? 'الوضع النهاري' : 'الوضع الليلي'}">${isDark() ? ICON.sun : ICON.moon}</button>
-        <button class="tool" data-act="bell" aria-label="التنبيهات" title="التنبيهات">${ICON.bell}${unseenCount(nl) ? '<i class="dot"></i>' : ''}</button>
-        <button class="tool" data-act="logout" aria-label="تسجيل الخروج" title="تسجيل الخروج">${ICON.logout}</button>
+
+  /* ── KPI data ── */
+  const totalDebt = db.customers.reduce((s, c) => s + customerDebt(c.id), 0);
+  const activeCustomers = db.customers.filter(c => customerDebt(c.id) > 0).length;
+  const thirtyDays = new Date(); thirtyDays.setDate(thirtyDays.getDate() + 30);
+  const due30 = db.invoices.filter(i => i.status !== 'void' && i.dueDate && new Date(i.dueDate) <= thirtyDays).reduce((s, i) => s + (i.remaining || 0), 0);
+  const latePay = db.invoices.filter(i => i.status !== 'void' && i.dueDate && new Date(i.dueDate) < new Date() && (i.remaining || 0) > 0).reduce((s, i) => s + (i.remaining || 0), 0);
+  const lateCount = db.invoices.filter(i => i.status !== 'void' && i.dueDate && new Date(i.dueDate) < new Date() && (i.remaining || 0) > 0).length;
+  const cashIn = db.payments.reduce((s, p) => s + (p.amount || 0), 0);
+  const cashOut = (db.expenses || []).reduce((s, e) => s + (e.amount || 0), 0);
+  const cashBalance = cashIn - cashOut;
+
+  /* ── Chart ── */
+  const chart = homeChart();
+
+  v.innerHTML = `<div class="dash-page">
+
+    <!-- Top header: greeting + time + date + action buttons -->
+    <div class="dash-header">
+      <div class="dash-greeting">
+        <div class="dash-greet-text">${greeting()}</div>
+        <div class="dash-clock-row"><span class="dash-time" id="clk">00:00</span></div>
+        <div class="dash-date" id="dt"></div>
       </div>
-    </header>
-    ${backupDue() ? `<div class="note"><span>${backupDays() === Infinity ? 'لم تحمّل نسخة احتياطية من بياناتك بعد.' : `مرّ ${backupDays()} يوم على آخر نسخة احتياطية.`}</span><button class="mini" data-act="bkNow" type="button">تحميل نسخة الآن</button></div>` : ''}
+      <div class="dash-actions">
+        <button class="dash-act-btn dash-act-in" data-act="go" data-to="invMenu">
+          <span class="dab-icon">+</span> وارد
+        </button>
+        <button class="dash-act-btn dash-act-out" data-act="go" data-to="expenses">
+          <span class="dab-icon">−</span> صادر
+        </button>
+        <button class="dash-act-btn dash-act-new" data-act="go" data-to="invForm" data-p='{"mode":"new"}'>
+          <span class="dab-icon">+</span> عميل جديد
+        </button>
+      </div>
+    </div>
+
+    ${backupDue() ? `<div class="note" style="margin:0 0 12px"><span>${backupDays() === Infinity ? 'لم تحمّل نسخة احتياطية من بياناتك بعد.' : `مرّ ${backupDays()} يوم على آخر نسخة احتياطية.`}</span><button class="mini" data-act="bkNow" type="button">تحميل نسخة الآن</button></div>` : ''}
     <div id="bk-perm"></div>
-    <div class="tiles" data-n="${TILES.filter(t => canScreen(t[0])).length}">${TILES.filter(t => canScreen(t[0])).map(([to, label, ic]) => `<button class="tile" data-act="go" data-to="${to}">${ICON[ic]}<span>${label}</span></button>`).join('')}</div>
-    <section class="alerts" aria-label="التنبيهات">
-      <h2>${ICON.bell}<span>التنبيهات</span>${n ? `<b class="cnt">${n}</b>` : ''}</h2>
-      <div class="alist">${n ? nl.map(x => `<button class="al" data-act="go" data-to="${x.to}"><i style="background:${x.c}"></i><span>${esc(x.t)}</span></button>`).join('') : '<div class="none">لا توجد تنبيهات</div>'}</div>
-    </section>
+
+    <!-- 4 KPI cards -->
+    <div class="kpi-row">
+      <div class="kpi-card kpi-debt" data-act="go" data-to="debts" role="button" tabindex="0">
+        <div class="kpi-top">
+          <span class="kpi-label">متبقي عند العملاء</span>
+          <span class="kpi-icon kpi-ic-blue">${ICON.debts}</span>
+        </div>
+        <div class="kpi-num">${fmt(totalDebt)}</div>
+        <div class="kpi-unit">جنيه</div>
+        <div class="kpi-sub">${activeCustomers} عميل نشط</div>
+      </div>
+      <div class="kpi-card kpi-due30" data-act="go" data-to="debts" role="button" tabindex="0">
+        <div class="kpi-top">
+          <span class="kpi-label">مستحق خلال 30 يوم</span>
+          <span class="kpi-icon kpi-ic-teal">${ICON.cheque}</span>
+        </div>
+        <div class="kpi-num">${fmt(due30)}</div>
+        <div class="kpi-unit">جنيه</div>
+        <div class="kpi-sub">${due30 > 0 ? 'أقساط جاية من العملاء' : 'مفيش أقساط جاية'}</div>
+      </div>
+      <div class="kpi-card kpi-late" data-act="go" data-to="debts" role="button" tabindex="0">
+        <div class="kpi-top">
+          <span class="kpi-label">أقساط متأخرة</span>
+          <span class="kpi-icon kpi-ic-red">${ICON.docs}</span>
+        </div>
+        <div class="kpi-num">${fmt(latePay)}</div>
+        <div class="kpi-unit">جنيه</div>
+        <div class="kpi-sub">${lateCount > 0 ? `${lateCount} فاتورة متأخرة` : 'مفيش متأخرات'}</div>
+      </div>
+      <div class="kpi-card kpi-cash" data-act="go" data-to="reports" role="button" tabindex="0">
+        <div class="kpi-top">
+          <span class="kpi-label">رصيد الخزنة</span>
+          <span class="kpi-icon kpi-ic-gold">${ICON.reports}</span>
+        </div>
+        <div class="kpi-num">${fmt(cashBalance)}</div>
+        <div class="kpi-unit">جنيه</div>
+        <div class="kpi-sub">وارد ${fmt(cashIn)} · صادر ${fmt(cashOut)}</div>
+      </div>
+    </div>
+
+    <!-- Notifications + Chart -->
+    <div class="dash-bottom">
+      <section class="dash-notif" aria-label="التنبيهات">
+        <div class="dash-panel-head">
+          <span>${ICON.bell} التنبيهات</span>
+          ${n ? `<b class="notif-cnt">${n}</b>` : ''}
+        </div>
+        <div class="notif-list">${n
+          ? nl.slice(0, 8).map(x => `<button class="notif-item" data-act="go" data-to="${x.to}"><i class="notif-dot" style="background:${x.c}"></i><span>${esc(x.t)}</span></button>`).join('')
+          : '<div class="notif-empty">لا توجد تنبيهات</div>'}</div>
+      </section>
+      <section class="dash-chart" aria-label="المبيعات والمصروفات">
+        <div class="dash-panel-head"><span>الوارد والصادر آخر 6 شهور</span></div>
+        <div class="chart-wrap">${chart}</div>
+        <div class="chart-legend">
+          <span><i class="leg-dot" style="background:var(--chart-in)"></i> وارد</span>
+          <span><i class="leg-dot" style="background:var(--chart-out)"></i> صادر</span>
+        </div>
+      </section>
+    </div>
   </div>`;
+
   tickClock();
+  /* make KPI cards keyboard-navigable */
+  $$('.kpi-card[data-act]', v).forEach(c => { c.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); c.click(); } }; });
   if (BACKUP_OK && db.settings.autoDir) folderState().then(st => { const b = $('#bk-perm'); if (b && !st.ok) b.innerHTML = `<div class="note"><span>النسخ التلقائي متوقف حتى تسمح للمتصفح بالوصول للمجلد.</span><button class="mini" data-act="bkAllow" type="button">السماح</button></div>`; });
 };
 
