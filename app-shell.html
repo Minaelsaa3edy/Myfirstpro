@@ -401,7 +401,11 @@ function goTo(id){
   document.querySelectorAll('.sb-item').forEach(i=>i.classList.toggle('active',i.dataset.s===id));
   closeSB();
 }
-document.querySelectorAll('[data-s]').forEach(el=>el.addEventListener('click',()=>goTo(el.dataset.s)));
+document.querySelectorAll('[data-s]').forEach(el=>{
+  function nav(e){e.preventDefault();e.stopPropagation();goTo(el.dataset.s)}
+  el.addEventListener('click',nav);
+  el.addEventListener('touchend',nav,{passive:false});
+});
 
 function animNum(el){
   const t=parseInt(el.dataset.t,10),dur=1100,s=performance.now();
