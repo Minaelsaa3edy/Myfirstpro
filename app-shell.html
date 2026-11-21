@@ -177,11 +177,22 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 /* ══ MOBILE ══ */
 @media(max-width:700px){
   :root{--sw:0px}
-  .sidebar{transform:translateX(110%)}
+  .sidebar{
+    transform:translateX(110%);
+    width:280px;
+    box-shadow:-8px 0 32px rgba(0,0,0,.7);
+  }
   .sidebar.open{transform:translateX(0)}
-  .main-wrap{padding-right:0}
+  .main-wrap{
+    padding-right:0!important;
+    width:100%!important;
+    max-width:100%!important;
+  }
   .menu-btn{display:flex!important}
-  .content{padding-top:68px}
+  .content{padding-top:68px;padding-left:12px;padding-right:12px;}
+  .kpi{flex:0 0 140px}
+  .desk-grid{display:block!important}
+  .desk-grid > div + div{margin-top:16px}
 }
 
 /* animations */
