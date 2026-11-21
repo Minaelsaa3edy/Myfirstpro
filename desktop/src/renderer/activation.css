@@ -4,7 +4,7 @@
   --petrol:#0A4D68; --petrol2:#0d6186; --gold:#C9A227; --gold2:#e8ba30;
   --void:#060A10; --void2:#0D1420;
   --snow:#E8EEF8; --snow2:#9aaac0;
-  --bg: #060A10;
+  --bg: #062e42;
   --surface: rgba(201,162,39,.06);
   --line: rgba(201,162,39,.18);
   --fg: #E8EEF8; --fg2: #9aaac0;
@@ -16,7 +16,8 @@
 * { box-sizing: border-box; }
 html, body {
   margin: 0; min-height: 100%;
-  background: var(--bg);
+  background: linear-gradient(135deg, #062e42 0%, #0A4D68 60%, #0d6186 100%);
+  min-height: 100vh;
   color: var(--fg);
   font-family: "Cairo", Tahoma, "Segoe UI", system-ui, sans-serif;
 }
@@ -25,18 +26,18 @@ body::before {
   content: "";
   position: fixed; inset: 0; pointer-events: none; z-index: 0;
   background:
-    radial-gradient(ellipse 60% 60% at 50% 50%, rgba(10,77,104,.35) 0%, transparent 70%),
-    radial-gradient(ellipse 80% 50% at 20% 80%, rgba(201,162,39,.08) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 70% at 80% 20%, rgba(201,162,39,.06) 0%, transparent 60%);
+    radial-gradient(ellipse 60% 60% at 50% 50%, rgba(10,77,104,.4) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 50% at 20% 80%, rgba(201,162,39,.10) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 70% at 80% 20%, rgba(201,162,39,.08) 0%, transparent 60%);
 }
 /* ring decorations */
 body::after {
   content: "";
   position: fixed; inset: 0; pointer-events: none; z-index: 0;
   background:
-    radial-gradient(circle 320px at 50% 50%, transparent 240px, rgba(201,162,39,.08) 241px, rgba(201,162,39,.08) 244px, transparent 245px),
-    radial-gradient(circle 480px at 50% 50%, transparent 390px, rgba(201,162,39,.05) 391px, rgba(201,162,39,.05) 394px, transparent 395px),
-    radial-gradient(circle 640px at 50% 50%, transparent 540px, rgba(10,77,104,.12) 541px, rgba(10,77,104,.12) 544px, transparent 545px);
+    radial-gradient(circle 320px at 50% 50%, transparent 240px, rgba(201,162,39,.10) 241px, rgba(201,162,39,.10) 244px, transparent 245px),
+    radial-gradient(circle 480px at 50% 50%, transparent 390px, rgba(201,162,39,.07) 391px, rgba(201,162,39,.07) 394px, transparent 395px),
+    radial-gradient(circle 640px at 50% 50%, transparent 540px, rgba(201,162,39,.04) 541px, rgba(201,162,39,.04) 544px, transparent 545px);
 }
 body { display: flex; flex-direction: column; align-items: center; position: relative; z-index: 1; }
 #devbar { width: 100%; background: #b3261e; color: #fff; text-align: center; font-weight: 700; padding: 6px; letter-spacing: .3px; position: relative; z-index: 2; }
