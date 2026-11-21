@@ -3,7 +3,7 @@
 <title>النسخة الأولى التجريبية لبرنامج المحاسبات لمواد البناء</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png?v=f938a712"><link rel="icon" type="image/png" sizes="64x64" href="icon-64.png?v=f938a712"><link rel="shortcut icon" href="favicon.ico?v=f938a712"><link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=f938a712"><link rel="manifest" href="manifest.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="المحاسبات"><meta name="theme-color" content="#060a22">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap">
 <style>
 :root {
   /* ── Petrol / Gold light theme ── */
@@ -9886,6 +9886,233 @@ EXPORTS.vchout = () => vchExport('out');
 LST_TITLE.vchin = 'تقرير إيصالات استلام النقدية من العملاء'; LST_TITLE.vchout = 'تقرير إيصالات استلام النقدية من المكتب';
 LST_PC.vchin = LST_PC.vchout = [0, 1, 2, 3, 4, 5];
 EXP_LIST.push(['vchin', 'إيصالات استلام نقدية من العملاء'], ['vchout', 'إيصالات استلام نقدية من المكتب']);
+
+/* ---------- Navigation: Permanent Sidebar + Mobile Bottom Nav ---------- */
+
+const TILES = [
+  /* daily operations first, then financials, then management */
+  ['invMenu', 'فاتورة جديدة', 'invoice'], ['debts', 'الديون والتحصيل', 'debts'], ['expenses', 'المصروفات والموردين', 'expenses'],
+  ['inventory', 'المخزن', 'stock'], ['customers', 'العملاء', 'customers'], ['empMenu', 'الموظفين', 'staff'],
+  ['reports', 'التقارير وحركة اليوم', 'reports'], ['cheques', 'الشيكات', 'cheque'], ['dashboard', 'لوحة الأرقام', 'dash'],
+  ['reminders', 'المنبّهات', 'alarm'], ['settings', 'الإعدادات', 'settings'],
+];
+
+/* Sub-items for menu screens that expand inside the sidebar */
+const PSB_SUBS = {
+  invMenu: [
+    { label: 'عميل جديد',           screen: 'invForm',   p: {mode:'new'},    icon: 'userPlus' },
+    { label: 'عميل مسجل مسبقاً',   screen: 'invPick',   p: {},              icon: 'userCheck' },
+    { label: 'بيع نقدي مباشر',      screen: 'invForm',   p: {mode:'cash'},   icon: 'cashSale' },
+    { label: 'إيداع حجز',           screen: 'bookings',  p: {},              icon: 'booking' },
+    { label: 'فواتير',              screen: 'invList',   p: {},              icon: 'docs' },
+    { label: 'عروض الأسعار',         screen: 'quotes',    p: {},              icon: 'docDollar' },
+    { label: 'التوصيل',             screen: 'deliveries',p: {},              icon: 'truck' },
+    { label: 'صور وإشعارات العملاء',screen: 'receipts',  p: {},              icon: 'rcpt' },
+  ],
+  empMenu: [
+    { label: 'موظف جديد',           screen: 'empForm',   p: {mode:'new'},    icon: 'userPlus' },
+    { label: 'سجل الموظفين',        screen: 'empList',   p: {},              icon: 'staff' },
+    { label: 'الرواتب',             screen: 'payroll',   p: {},              icon: 'reports' },
+  ],
+};
+
+let _psbOpenSub = null; /* which TILE is currently expanded */
+
+function buildPermSidebar() {
+  const sb = document.getElementById('perm-sb');
+  if (!sb) return;
+  sb.innerHTML = `
+    <div class="sb-brand">
+      <div class="sb-mark">M</div>
+      <div><div class="sb-title">Mina.Dev</div><div class="sb-sub">مواد البناء</div></div>
+    </div>
+    <div class="psb-nav" id="psb-nav"></div>`;
+  renderPsbNav();
+
+  function handleNav(e) {
+    const btn = e.target.closest('.psb-item');
+    const sub = e.target.closest('.psb-sub-item');
+    const back = e.target.closest('.psb-back-btn');
+    if (back) { e.preventDefault(); _psbOpenSub = null; renderPsbNav(); return; }
+    if (sub) {
+      e.preventDefault();
+      const s = sub.dataset.screen, p = JSON.parse(sub.dataset.p || '{}');
+      go(s, p);
+      return;
+    }
+    if (!btn) return;
+    e.preventDefault();
+    const screen = btn.dataset.screen;
+    if (PSB_SUBS[screen]) {
+      /* toggle sub-list */
+      _psbOpenSub = (_psbOpenSub === screen) ? null : screen;
+      renderPsbNav();
+      go(screen); /* also navigate to the menu screen */
+    } else {
+      _psbOpenSub = null;
+      renderPsbNav();
+      go(screen);
+    }
+  }
+  sb.addEventListener('click', handleNav);
+  sb.addEventListener('touchend', e => { handleNav(e); }, { passive: false });
+}
+
+function renderPsbNav() {
+  const nav = document.getElementById('psb-nav');
+  if (!nav) return;
+  nav.innerHTML = TILES.map(([screen, label, icon]) => {
+    const svgIcon = ICON[icon] || ICON.invoice;
+    const hasSubs = !!PSB_SUBS[screen];
+    const isOpen = _psbOpenSub === screen;
+    let html = `<button class="psb-item" data-screen="${screen}" title="${label}" aria-label="${label}">
+      ${svgIcon}<span>${label}</span></button>`;
+    if (hasSubs && isOpen) {
+      html += `<div class="psb-sub-list open">
+        <button class="psb-back-btn">← رجوع</button>` +
+        PSB_SUBS[screen].map(s => {
+          const ic = ICON[s.icon] || '';
+          return `<button class="psb-sub-item" data-screen="${s.screen}" data-p='${JSON.stringify(s.p)}' title="${s.label}">${ic}<span>${s.label}</span></button>`;
+        }).join('') + `</div>`;
+    }
+    return html;
+  }).join('');
+}
+
+buildPermSidebar();
+
+/* ===== Mobile Bottom Navigation ===== */
+(function buildMobNav() {
+  /* First 5 tiles go in the bar, rest in "More" sheet */
+  const PIN_COUNT = 5;
+  const pinnedTiles = TILES.slice(0, PIN_COUNT);
+  const moreTiles   = TILES.slice(PIN_COUNT);
+
+  const navScroll   = document.getElementById('mob-nav-scroll');
+  const moreSheet   = document.getElementById('mob-more-sheet');
+  const moreBg      = document.getElementById('mob-more-bg');
+  const moreGrid    = document.getElementById('mob-more-grid');
+  const subSheet    = document.getElementById('mob-sub-sheet');
+  const subBg       = document.getElementById('mob-sub-bg');
+  const subTitle    = document.getElementById('mob-sub-title');
+  const subList     = document.getElementById('mob-sub-list');
+
+  function closeSheets() {
+    if (moreSheet) moreSheet.classList.remove('open');
+    if (subSheet)  subSheet.classList.remove('open');
+  }
+
+  function openSubSheet(screen, label) {
+    const subs = PSB_SUBS[screen];
+    if (!subs) { go(screen); return; }
+    if (subTitle) subTitle.textContent = label;
+    if (subList) subList.innerHTML = subs.map(s =>
+      `<button class="msub-item" data-screen="${s.screen}" data-p='${JSON.stringify(s.p)}'>
+        ${ICON[s.icon] || ''}<span>${s.label}</span>
+      </button>`
+    ).join('');
+    if (moreSheet) moreSheet.classList.remove('open');
+    if (subSheet)  subSheet.classList.add('open');
+  }
+
+  function buildBar() {
+    if (!navScroll) return;
+    navScroll.innerHTML = pinnedTiles.map(([screen, label, icon]) =>
+      `<button class="mnav-item" data-screen="${screen}">
+        ${ICON[icon] || ICON.invoice}
+        <span>${label}</span>
+      </button>`
+    ).join('') +
+    `<button class="mnav-item" id="mob-more-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>
+      </svg>
+      <span>المزيد</span>
+    </button>`;
+
+    if (moreGrid) moreGrid.innerHTML = moreTiles.map(([screen, label, icon]) =>
+      `<button class="mmg-item" data-screen="${screen}">
+        ${ICON[icon] || ICON.invoice}
+        <span>${label}</span>
+      </button>`
+    ).join('');
+  }
+
+  if (navScroll) {
+    navScroll.addEventListener('click', e => {
+      const btn = e.target.closest('.mnav-item');
+      if (!btn) return;
+      if (btn.id === 'mob-more-btn') {
+        if (moreSheet) moreSheet.classList.toggle('open');
+        return;
+      }
+      const screen = btn.dataset.screen;
+      closeSheets();
+      if (PSB_SUBS[screen]) {
+        openSubSheet(screen, TILES.find(t => t[0] === screen)?.[1] || '');
+      } else {
+        go(screen);
+      }
+    });
+  }
+
+  if (moreBg)  moreBg.addEventListener('click', closeSheets);
+  if (subBg)   subBg.addEventListener('click', closeSheets);
+
+  if (moreGrid) {
+    moreGrid.addEventListener('click', e => {
+      const btn = e.target.closest('.mmg-item');
+      if (!btn) return;
+      const screen = btn.dataset.screen;
+      const label = TILES.find(t => t[0] === screen)?.[1] || '';
+      if (PSB_SUBS[screen]) {
+        openSubSheet(screen, label);
+      } else {
+        closeSheets();
+        go(screen);
+      }
+    });
+  }
+
+  if (subList) {
+    subList.addEventListener('click', e => {
+      const btn = e.target.closest('.msub-item');
+      if (!btn) return;
+      closeSheets();
+      go(btn.dataset.screen, JSON.parse(btn.dataset.p || '{}'));
+    });
+  }
+
+  buildBar();
+
+  window._updateMobNavActive = function(screenName) {
+    document.querySelectorAll('.mnav-item').forEach(btn => {
+      const tile = btn.dataset.screen;
+      const isSelf = tile === screenName;
+      const isParent = PSB_SUBS[tile] && PSB_SUBS[tile].some(s => s.screen === screenName);
+      btn.classList.toggle('active', isSelf || isParent);
+    });
+    document.querySelectorAll('.mmg-item').forEach(btn => {
+      const tile = btn.dataset.screen;
+      const isSelf = tile === screenName;
+      const isParent = PSB_SUBS[tile] && PSB_SUBS[tile].some(s => s.screen === screenName);
+      btn.classList.toggle('active', isSelf || isParent);
+    });
+  };
+})();
+
+function updateSidebarActive(screenName) {
+  document.querySelectorAll('.psb-item').forEach(btn => {
+    const tile = btn.dataset.screen;
+    const isSelf = tile === screenName;
+    const isParent = PSB_SUBS[tile] && PSB_SUBS[tile].some(s => s.screen === screenName);
+    btn.classList.toggle('active', isSelf || isParent);
+  });
+  document.querySelectorAll('.psb-sub-item').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.screen === screenName);
+  });
+  if (window._updateMobNavActive) window._updateMobNavActive(screenName);
+}
 
 /* ---------- Glass code card shared by the real / demo programs' lock screens: the same animated dusk scene as the host gate (it is mounted outside #app, so the UI zoom never touches it) ---------- */
 const GX_SCENE = "<div class=\"gx-scene\" aria-hidden=\"true\"><svg class=\"gx-l gx-sky\" viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMax slice\"><defs><linearGradient id=\"gxSky\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#060a22\"/><stop offset=\".3\" stop-color=\"#101c5a\"/><stop offset=\".5\" stop-color=\"#1f3f9a\"/><stop offset=\".64\" stop-color=\"#5b4fb0\"/><stop offset=\".76\" stop-color=\"#cc5f8c\"/><stop offset=\".87\" stop-color=\"#f28a4a\"/><stop offset=\".96\" stop-color=\"#ffc266\"/><\/linearGradient><\/defs><rect x=\"-50\" y=\"-50\" width=\"1700\" height=\"700\" fill=\"url(#gxSky)\"/><\/svg><svg class=\"gx-l gx-sun\" viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMax slice\"><defs><radialGradient id=\"gxGlow\" cx=\"1000\" cy=\"600\" r=\"760\" gradientUnits=\"userSpaceOnUse\"><stop offset=\"0\" stop-color=\"#ffe2a0\" stop-opacity=\".95\"/><stop offset=\".16\" stop-color=\"#ffb064\" stop-opacity=\".75\"/><stop offset=\".42\" stop-color=\"#f06a64\" stop-opacity=\".38\"/><stop offset=\".75\" stop-color=\"#7a50c0\" stop-opacity=\".12\"/><stop offset=\"1\" stop-color=\"#7a50c0\" stop-opacity=\"0\"/><\/radialGradient><\/defs><circle cx=\"1000\" cy=\"600\" r=\"760\" fill=\"url(#gxGlow)\"/><\/svg><svg class=\"gx-l gx-st gx-sa\" viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMax slice\"><circle cx=\"724\" cy=\"185\" r=\"1.5\" fill=\"#fff\" opacity=\"1\"/><circle cx=\"813\" cy=\"194\" r=\"1\" fill=\"#fff\" opacity=\"1\"/><circle cx=\"1008\" cy=\"262\" r=\"0.8\" fill=\"#fff\" opacity=\"1\"/><circle cx=\"485\" cy=\"30\" r=\"0.8\" fill=\"#fff\" opacity=\"1\"/><circle cx=\"1544\" cy=\"216\" r=\"1.9\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"997\" cy=\"274\" r=\"0.8\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"57\" cy=\"290\" r=\"1.9\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"1245\" cy=\"108\" r=\"1.9\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"831\" cy=\"211\" r=\"1.5\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"1060\" cy=\"151\" r=\"1.2\" fill=\"#fff\" opacity=\"1\"/><circle cx=\"1596\" cy=\"329\" r=\"0.8\" fill=\"#fff\" opacity=\"0.85\"/><circle cx=\"504\" cy=\"76\" r=\"1.2\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"112\" cy=\"253\" r=\"1.5\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"1355\" cy=\"128\" r=\"0.8\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"342\" cy=\"306\" r=\"0.8\" fill=\"#fff\" opacity=\"1\"/><circle cx=\"601\" cy=\"234\" r=\"1.5\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"906\" cy=\"66\" r=\"1.2\" fill=\"#fff\" opacity=\"0.85\"/><circle cx=\"139\" cy=\"110\" r=\"1.5\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"215\" cy=\"233\" r=\"0.8\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"744\" cy=\"161\" r=\"1.9\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"716\" cy=\"63\" r=\"1\" fill=\"#fff\" opacity=\"1\"/><circle cx=\"1030\" cy=\"38\" r=\"1.5\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"1\" cy=\"285\" r=\"1.9\" fill=\"#fff\" opacity=\"0.85\"/><circle cx=\"1597\" cy=\"6\" r=\"1\" fill=\"#fff\" opacity=\"1\"/><circle cx=\"1593\" cy=\"199\" r=\"1.9\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"67\" cy=\"48\" r=\"1.5\" fill=\"#fff\" opacity=\"0.85\"/><circle cx=\"15\" cy=\"201\" r=\"1.2\" fill=\"#fff\" opacity=\"1\"/><circle cx=\"117\" cy=\"30\" r=\"1.9\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"25\" cy=\"122\" r=\"1.9\" fill=\"#fff\" opacity=\"1\"/><circle cx=\"204\" cy=\"194\" r=\"1.9\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"1386\" cy=\"60\" r=\"1\" fill=\"#fff\" opacity=\"0.85\"/><circle cx=\"1453\" cy=\"270\" r=\"1\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"254\" cy=\"208\" r=\"1.9\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"1099\" cy=\"128\" r=\"1.5\" fill=\"#fff\" opacity=\"0.55\"/><\/svg><svg class=\"gx-l gx-st gx-sb\" viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMax slice\"><circle cx=\"674\" cy=\"34\" r=\"0.8\" fill=\"#fff\" opacity=\"0.85\"/><circle cx=\"381\" cy=\"233\" r=\"1.2\" fill=\"#fff\" opacity=\"1\"/><circle cx=\"1318\" cy=\"197\" r=\"1.2\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"1487\" cy=\"322\" r=\"1\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"767\" cy=\"216\" r=\"1.9\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"448\" cy=\"303\" r=\"1\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"111\" cy=\"136\" r=\"1\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"75\" cy=\"93\" r=\"1.9\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"148\" cy=\"46\" r=\"1.5\" fill=\"#fff\" opacity=\"0.85\"/><circle cx=\"1051\" cy=\"228\" r=\"1.9\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"944\" cy=\"305\" r=\"1.5\" fill=\"#fff\" opacity=\"0.85\"/><circle cx=\"1122\" cy=\"318\" r=\"0.8\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"772\" cy=\"241\" r=\"1.2\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"1599\" cy=\"25\" r=\"1.9\" fill=\"#fff\" opacity=\"0.85\"/><circle cx=\"1179\" cy=\"297\" r=\"1\" fill=\"#fff\" opacity=\"0.85\"/><circle cx=\"563\" cy=\"226\" r=\"0.8\" fill=\"#fff\" opacity=\"1\"/><circle cx=\"1511\" cy=\"10\" r=\"1.5\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"1000\" cy=\"126\" r=\"1.9\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"974\" cy=\"26\" r=\"0.8\" fill=\"#fff\" opacity=\"0.85\"/><circle cx=\"1408\" cy=\"240\" r=\"1.5\" fill=\"#fff\" opacity=\"1\"/><circle cx=\"705\" cy=\"277\" r=\"0.8\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"496\" cy=\"29\" r=\"0.8\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"1532\" cy=\"37\" r=\"1.9\" fill=\"#fff\" opacity=\"1\"/><circle cx=\"409\" cy=\"4\" r=\"1.2\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"1085\" cy=\"67\" r=\"1\" fill=\"#fff\" opacity=\"0.85\"/><circle cx=\"1056\" cy=\"146\" r=\"1\" fill=\"#fff\" opacity=\"0.85\"/><circle cx=\"648\" cy=\"83\" r=\"1.5\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"1408\" cy=\"127\" r=\"1.9\" fill=\"#fff\" opacity=\"0.85\"/><circle cx=\"336\" cy=\"44\" r=\"1.2\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"1138\" cy=\"314\" r=\"1.2\" fill=\"#fff\" opacity=\"0.7\"/><circle cx=\"181\" cy=\"156\" r=\"1\" fill=\"#fff\" opacity=\"1\"/><circle cx=\"612\" cy=\"172\" r=\"1.2\" fill=\"#fff\" opacity=\"1\"/><circle cx=\"513\" cy=\"273\" r=\"1.2\" fill=\"#fff\" opacity=\"0.55\"/><circle cx=\"1085\" cy=\"93\" r=\"1.2\" fill=\"#fff\" opacity=\"0.85\"/><\/svg><div class=\"gx-clouds\"><i class=\"gx-cl gx-ca\" style=\"top:9%;width:70vmax;height:13vmax;animation-duration:150s;animation-delay:-20s;opacity:0.55\"><\/i><i class=\"gx-cl gx-cb\" style=\"top:17%;width:58vmax;height:10vmax;animation-duration:120s;animation-delay:-70s;opacity:0.6\"><\/i><i class=\"gx-cl gx-ca\" style=\"top:27%;width:80vmax;height:12vmax;animation-duration:170s;animation-delay:-120s;opacity:0.5\"><\/i><i class=\"gx-cl gx-cc\" style=\"top:36%;width:66vmax;height:10vmax;animation-duration:135s;animation-delay:-40s;opacity:0.7\"><\/i><i class=\"gx-cl gx-cc\" style=\"top:46%;width:90vmax;height:11vmax;animation-duration:190s;animation-delay:-150s;opacity:0.6\"><\/i><i class=\"gx-cl gx-cb\" style=\"top:53%;width:60vmax;height:8vmax;animation-duration:110s;animation-delay:-90s;opacity:0.55\"><\/i><\/div><svg class=\"gx-l gx-far\" viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMax slice\"><defs><linearGradient id=\"gxFar\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#8a8be0\"/><stop offset=\".55\" stop-color=\"#4d58b4\"/><stop offset=\"1\" stop-color=\"#3b4aa0\"/><\/linearGradient><linearGradient id=\"gxHaze\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffd2a0\" stop-opacity=\"0\"/><stop offset=\"1\" stop-color=\"#ffd2a0\" stop-opacity=\".42\"/><\/linearGradient><\/defs><path d=\"M-100,640 -100,600 120,500 260,452 380,512 520,468 640,522 800,440 960,502 1120,430 1280,492 1420,442 1560,500 1700,600 1700,640Z\" fill=\"url(#gxFar)\" opacity=\".92\"/><rect x=\"-100\" y=\"520\" width=\"1800\" height=\"84\" fill=\"url(#gxHaze)\"/><\/svg><svg class=\"gx-l gx-mid\" viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMax slice\"><defs><linearGradient id=\"gxMid\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#4a4fb2\"/><stop offset=\".6\" stop-color=\"#262e78\"/><stop offset=\"1\" stop-color=\"#171d5a\"/><\/linearGradient><linearGradient id=\"gxLit\" x1=\"520\" y1=\"0\" x2=\"1560\" y2=\"0\" gradientUnits=\"userSpaceOnUse\"><stop offset=\"0\" stop-color=\"#ffa860\" stop-opacity=\"0\"/><stop offset=\".55\" stop-color=\"#ff8aa0\" stop-opacity=\".2\"/><stop offset=\"1\" stop-color=\"#ff9060\" stop-opacity=\"0\"/><\/linearGradient><linearGradient id=\"gxSnow\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#b9c4ff\"/><stop offset=\".55\" stop-color=\"#fff0e0\"/><stop offset=\"1\" stop-color=\"#ffcf9a\"/><\/linearGradient><path id=\"gxMidP\" d=\"M-100,640 -100,612 60,520 150,470 230,506 330,424 430,332 520,414 600,384 700,302 780,252 860,332 930,302 1010,362 1090,292 1180,232 1260,322 1340,302 1430,384 1520,332 1620,444 1700,612 1700,640Z\"/><\/defs><use href=\"#gxMidP\" fill=\"url(#gxMid)\"/><use href=\"#gxMidP\" fill=\"url(#gxLit)\"/><g fill=\"url(#gxSnow)\" opacity=\".92\"><path d=\"M430,332 490,386 470,376 450,392 430,373 410,390 391,379 371,386Z\"/><path d=\"M780,252 844,316 820,309 796,320 772,306 748,320 724,309 700,302Z\"/><path d=\"M930,302 1007,360 983,352 958,365 934,352 909,366 885,352 860,332Z\"/><path d=\"M1180,232 1239,298 1214,289 1189,303 1165,284 1140,302 1115,288 1090,292Z\"/><path d=\"M1340,302 1404,360 1380,350 1356,364 1332,353 1308,366 1284,353 1260,322Z\"/><path d=\"M1520,332 1569,386 1545,376 1522,392 1499,377 1476,391 1453,375 1430,384Z\"/><\/g><\/svg><svg class=\"gx-l gx-lake\" viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMax slice\"><defs><linearGradient id=\"gxLk\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#f6b26a\"/><stop offset=\".08\" stop-color=\"#e9825f\"/><stop offset=\".2\" stop-color=\"#9b5fb8\"/><stop offset=\".48\" stop-color=\"#34419f\"/><stop offset=\"1\" stop-color=\"#0a1244\"/><\/linearGradient><linearGradient id=\"gxMk\" x1=\"0\" y1=\"600\" x2=\"0\" y2=\"830\" gradientUnits=\"userSpaceOnUse\"><stop offset=\"0\" stop-color=\"#fff\" stop-opacity=\".8\"/><stop offset=\"1\" stop-color=\"#fff\" stop-opacity=\"0\"/><\/linearGradient><mask id=\"gxMask\" maskUnits=\"userSpaceOnUse\" x=\"-100\" y=\"600\" width=\"1800\" height=\"300\"><rect x=\"-100\" y=\"600\" width=\"1800\" height=\"300\" fill=\"url(#gxMk)\"/><\/mask><radialGradient id=\"gxCol\" cx=\"1000\" cy=\"640\" r=\"260\" gradientTransform=\"translate(1000 640) scale(.34 1) translate(-1000 -640)\" gradientUnits=\"userSpaceOnUse\"><stop offset=\"0\" stop-color=\"#ffe2a0\" stop-opacity=\".8\"/><stop offset=\"1\" stop-color=\"#ffb064\" stop-opacity=\"0\"/><\/radialGradient><filter id=\"gxBl\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\"><feGaussianBlur stdDeviation=\"2.2\"/><\/filter><\/defs><rect x=\"-100\" y=\"600\" width=\"1800\" height=\"310\" fill=\"url(#gxLk)\"/><g mask=\"url(#gxMask)\" filter=\"url(#gxBl)\" opacity=\".5\"><use href=\"#gxMidP\" transform=\"translate(0 1200) scale(1 -1)\" fill=\"#3a3f9c\"/><\/g><ellipse cx=\"1000\" cy=\"720\" rx=\"130\" ry=\"190\" fill=\"url(#gxCol)\"/><rect x=\"303\" y=\"603\" width=\"1.6\" height=\"28\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"344\" y=\"603\" width=\"1.6\" height=\"26\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"366\" y=\"603\" width=\"1.6\" height=\"27\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"400\" y=\"603\" width=\"1.6\" height=\"30\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"492\" y=\"603\" width=\"1.6\" height=\"14\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"498\" y=\"603\" width=\"1.6\" height=\"19\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"510\" y=\"603\" width=\"1.6\" height=\"26\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"530\" y=\"603\" width=\"1.6\" height=\"28\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"532\" y=\"603\" width=\"1.6\" height=\"29\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"581\" y=\"603\" width=\"1.6\" height=\"21\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"620\" y=\"603\" width=\"1.6\" height=\"29\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"669\" y=\"603\" width=\"1.6\" height=\"17\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"754\" y=\"603\" width=\"1.6\" height=\"28\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"757\" y=\"603\" width=\"1.6\" height=\"28\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"765\" y=\"603\" width=\"1.6\" height=\"29\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"777\" y=\"603\" width=\"1.6\" height=\"20\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"1234\" y=\"603\" width=\"1.6\" height=\"21\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"1240\" y=\"603\" width=\"1.6\" height=\"24\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"1253\" y=\"603\" width=\"1.6\" height=\"18\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"1294\" y=\"603\" width=\"1.6\" height=\"21\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"1299\" y=\"603\" width=\"1.6\" height=\"16\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"1314\" y=\"603\" width=\"1.6\" height=\"29\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"1357\" y=\"603\" width=\"1.6\" height=\"28\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"1365\" y=\"603\" width=\"1.6\" height=\"20\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"1389\" y=\"603\" width=\"1.6\" height=\"30\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"1427\" y=\"603\" width=\"1.6\" height=\"27\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"1447\" y=\"603\" width=\"1.6\" height=\"18\" fill=\"#ffcf8a\" opacity=\".32\"/><rect x=\"1481\" y=\"603\" width=\"1.6\" height=\"25\" fill=\"#ffcf8a\" opacity=\".32\"/><\/svg><svg class=\"gx-l gx-shim\" viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMax slice\"><rect class=\"gx-bar gx-b0\" x=\"-55\" y=\"760\" width=\"169\" height=\"3\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.17\" style=\"animation-delay:-11.6s\"/><rect class=\"gx-bar gx-b1\" x=\"809\" y=\"754\" width=\"185\" height=\"3\" rx=\"2\" fill=\"#ffe6b0\" opacity=\"0.45\" style=\"animation-delay:-5.9s\"/><rect class=\"gx-bar gx-b2\" x=\"583\" y=\"803\" width=\"149\" height=\"3\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.3\" style=\"animation-delay:-11.5s\"/><rect class=\"gx-bar gx-b3\" x=\"106\" y=\"867\" width=\"178\" height=\"4\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.21\" style=\"animation-delay:-5.2s\"/><rect class=\"gx-bar gx-b0\" x=\"404\" y=\"837\" width=\"211\" height=\"4\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.22\" style=\"animation-delay:-2.3s\"/><rect class=\"gx-bar gx-b1\" x=\"1197\" y=\"783\" width=\"135\" height=\"3\" rx=\"2\" fill=\"#ffe6b0\" opacity=\"0.35\" style=\"animation-delay:-0.3s\"/><rect class=\"gx-bar gx-b2\" x=\"446\" y=\"666\" width=\"105\" height=\"2\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.15\" style=\"animation-delay:-4.3s\"/><rect class=\"gx-bar gx-b3\" x=\"100\" y=\"783\" width=\"173\" height=\"3\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.18\" style=\"animation-delay:-6.1s\"/><rect class=\"gx-bar gx-b0\" x=\"642\" y=\"681\" width=\"101\" height=\"2\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.29\" style=\"animation-delay:-4.5s\"/><rect class=\"gx-bar gx-b1\" x=\"246\" y=\"726\" width=\"105\" height=\"3\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.16\" style=\"animation-delay:-7.6s\"/><rect class=\"gx-bar gx-b2\" x=\"863\" y=\"788\" width=\"226\" height=\"3\" rx=\"2\" fill=\"#ffe6b0\" opacity=\"0.51\" style=\"animation-delay:-10.3s\"/><rect class=\"gx-bar gx-b3\" x=\"1385\" y=\"676\" width=\"155\" height=\"2\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.18\" style=\"animation-delay:-3.8s\"/><rect class=\"gx-bar gx-b0\" x=\"1564\" y=\"699\" width=\"133\" height=\"2\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.15\" style=\"animation-delay:-10.7s\"/><rect class=\"gx-bar gx-b1\" x=\"342\" y=\"649\" width=\"98\" height=\"2\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.14\" style=\"animation-delay:-1.2s\"/><rect class=\"gx-bar gx-b2\" x=\"96\" y=\"842\" width=\"245\" height=\"4\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.2\" style=\"animation-delay:-4.8s\"/><rect class=\"gx-bar gx-b3\" x=\"1069\" y=\"801\" width=\"86\" height=\"3\" rx=\"2\" fill=\"#ffe6b0\" opacity=\"0.45\" style=\"animation-delay:-10.9s\"/><rect class=\"gx-bar gx-b0\" x=\"1128\" y=\"879\" width=\"180\" height=\"4\" rx=\"2\" fill=\"#ffe6b0\" opacity=\"0.41\" style=\"animation-delay:-6.0s\"/><rect class=\"gx-bar gx-b1\" x=\"83\" y=\"801\" width=\"76\" height=\"3\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.19\" style=\"animation-delay:-0.4s\"/><rect class=\"gx-bar gx-b2\" x=\"139\" y=\"764\" width=\"167\" height=\"3\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.17\" style=\"animation-delay:-2.2s\"/><rect class=\"gx-bar gx-b3\" x=\"1413\" y=\"668\" width=\"167\" height=\"2\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.16\" style=\"animation-delay:-1.1s\"/><rect class=\"gx-bar gx-b0\" x=\"1178\" y=\"629\" width=\"128\" height=\"2\" rx=\"2\" fill=\"#ffe6b0\" opacity=\"0.31\" style=\"animation-delay:-3.9s\"/><rect class=\"gx-bar gx-b1\" x=\"898\" y=\"741\" width=\"139\" height=\"3\" rx=\"2\" fill=\"#ffe6b0\" opacity=\"0.49\" style=\"animation-delay:-0.2s\"/><rect class=\"gx-bar gx-b2\" x=\"653\" y=\"805\" width=\"141\" height=\"3\" rx=\"2\" fill=\"#ffe6b0\" opacity=\"0.35\" style=\"animation-delay:-8.9s\"/><rect class=\"gx-bar gx-b3\" x=\"781\" y=\"724\" width=\"81\" height=\"3\" rx=\"2\" fill=\"#ffe6b0\" opacity=\"0.38\" style=\"animation-delay:-0.2s\"/><rect class=\"gx-bar gx-b0\" x=\"1222\" y=\"859\" width=\"264\" height=\"4\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.31\" style=\"animation-delay:-7.6s\"/><rect class=\"gx-bar gx-b1\" x=\"1525\" y=\"724\" width=\"146\" height=\"3\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.16\" style=\"animation-delay:-9.7s\"/><rect class=\"gx-bar gx-b2\" x=\"1170\" y=\"683\" width=\"168\" height=\"2\" rx=\"2\" fill=\"#ffe6b0\" opacity=\"0.32\" style=\"animation-delay:-9.8s\"/><rect class=\"gx-bar gx-b3\" x=\"1007\" y=\"724\" width=\"207\" height=\"3\" rx=\"2\" fill=\"#ffe6b0\" opacity=\"0.43\" style=\"animation-delay:-9.2s\"/><rect class=\"gx-bar gx-b0\" x=\"12\" y=\"823\" width=\"218\" height=\"4\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.19\" style=\"animation-delay:-4.1s\"/><rect class=\"gx-bar gx-b1\" x=\"989\" y=\"741\" width=\"94\" height=\"3\" rx=\"2\" fill=\"#ffe6b0\" opacity=\"0.48\" style=\"animation-delay:-7.5s\"/><rect class=\"gx-bar gx-b2\" x=\"454\" y=\"676\" width=\"160\" height=\"2\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.18\" style=\"animation-delay:-7.9s\"/><rect class=\"gx-bar gx-b3\" x=\"1555\" y=\"769\" width=\"144\" height=\"3\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.18\" style=\"animation-delay:-7.7s\"/><rect class=\"gx-bar gx-b0\" x=\"-65\" y=\"806\" width=\"278\" height=\"3\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.19\" style=\"animation-delay:-7.4s\"/><rect class=\"gx-bar gx-b1\" x=\"-16\" y=\"816\" width=\"143\" height=\"3\" rx=\"2\" fill=\"#c9d4ff\" opacity=\"0.19\" style=\"animation-delay:-2.3s\"/><\/svg><svg class=\"gx-l gx-lights\" viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMax slice\"><circle class=\"gx-t0\" cx=\"303\" cy=\"591\" r=\"1.6\" fill=\"#ffd08a\"/><circle class=\"gx-t1\" cx=\"344\" cy=\"595\" r=\"1.3\" fill=\"#ffd08a\"/><circle class=\"gx-t2\" cx=\"366\" cy=\"592\" r=\"1.3\" fill=\"#ffd08a\"/><circle class=\"gx-t0\" cx=\"400\" cy=\"591\" r=\"1.6\" fill=\"#ffd08a\"/><circle class=\"gx-t1\" cx=\"492\" cy=\"587\" r=\"1.6\" fill=\"#ffd08a\"/><circle class=\"gx-t2\" cx=\"498\" cy=\"592\" r=\"1.6\" fill=\"#ffd08a\"/><circle class=\"gx-t0\" cx=\"510\" cy=\"595\" r=\"1.6\" fill=\"#ffd08a\"/><circle class=\"gx-t1\" cx=\"530\" cy=\"588\" r=\"1.9\" fill=\"#ffd08a\"/><circle class=\"gx-t2\" cx=\"532\" cy=\"587\" r=\"1.9\" fill=\"#ffd08a\"/><circle class=\"gx-t0\" cx=\"581\" cy=\"594\" r=\"1.9\" fill=\"#ffd08a\"/><circle class=\"gx-t1\" cx=\"620\" cy=\"592\" r=\"1.6\" fill=\"#ffd08a\"/><circle class=\"gx-t2\" cx=\"669\" cy=\"595\" r=\"1.9\" fill=\"#ffd08a\"/><circle class=\"gx-t0\" cx=\"754\" cy=\"593\" r=\"1.9\" fill=\"#ffd08a\"/><circle class=\"gx-t1\" cx=\"757\" cy=\"591\" r=\"1.3\" fill=\"#ffd08a\"/><circle class=\"gx-t2\" cx=\"765\" cy=\"594\" r=\"1.9\" fill=\"#ffd08a\"/><circle class=\"gx-t0\" cx=\"777\" cy=\"587\" r=\"1.6\" fill=\"#ffd08a\"/><circle class=\"gx-t1\" cx=\"1234\" cy=\"590\" r=\"1.9\" fill=\"#ffd08a\"/><circle class=\"gx-t2\" cx=\"1240\" cy=\"588\" r=\"1.3\" fill=\"#ffd08a\"/><circle class=\"gx-t0\" cx=\"1253\" cy=\"593\" r=\"1.9\" fill=\"#ffd08a\"/><circle class=\"gx-t1\" cx=\"1294\" cy=\"587\" r=\"1.9\" fill=\"#ffd08a\"/><circle class=\"gx-t2\" cx=\"1299\" cy=\"589\" r=\"1.9\" fill=\"#ffd08a\"/><circle class=\"gx-t0\" cx=\"1314\" cy=\"595\" r=\"1.3\" fill=\"#ffd08a\"/><circle class=\"gx-t1\" cx=\"1357\" cy=\"592\" r=\"1.6\" fill=\"#ffd08a\"/><circle class=\"gx-t2\" cx=\"1365\" cy=\"597\" r=\"1.3\" fill=\"#ffd08a\"/><circle class=\"gx-t0\" cx=\"1389\" cy=\"589\" r=\"1.6\" fill=\"#ffd08a\"/><circle class=\"gx-t1\" cx=\"1427\" cy=\"594\" r=\"1.6\" fill=\"#ffd08a\"/><circle class=\"gx-t2\" cx=\"1447\" cy=\"589\" r=\"1.3\" fill=\"#ffd08a\"/><circle class=\"gx-t0\" cx=\"1481\" cy=\"595\" r=\"1.6\" fill=\"#ffd08a\"/><\/svg><svg class=\"gx-l gx-near\" viewBox=\"0 0 1600 900\" preserveAspectRatio=\"xMidYMax slice\"><defs><linearGradient id=\"gxNr\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#1a2260\"/><stop offset=\".4\" stop-color=\"#0b1236\"/><stop offset=\"1\" stop-color=\"#050818\"/><\/linearGradient><\/defs><path d=\"M-100,900 -100,470 60,452 190,500 300,566 420,640 530,730 640,900 640,900Z\" fill=\"url(#gxNr)\"/><path d=\"M1700,900 1700,498 1560,520 1450,566 1350,630 1250,716 1150,808 1060,900 1060,900Z\" fill=\"url(#gxNr)\"/><g transform=\"translate(64 34)\"><path d=\"M70,424h104l-14,-20h-76z\" fill=\"#0b1030\"/><path d=\"M78,424h88v34h-88z\" fill=\"#0d1334\"/><path d=\"M104,432h12v14h-12zM124,432h12v14h-12zM144,432h12v14h-12z\" class=\"gx-win\" fill=\"#ffc46b\"/><path d=\"M60,460h126v5h-126z\" fill=\"#0b1030\"/><path d=\"M200,462 l0,-40 l5,0\" stroke=\"#0b1030\" stroke-width=\"3\" fill=\"none\"/><\/g><g class=\"gx-sw gx-sw1\" fill=\"#070b24\"><path d=\"M-40,322L-65,397L-15,397ZM-40,362L-77,441L-3,441ZM-40,403L-88,486L8,486ZM-44,441L-44,477L-36,477L-36,441ZM10,308L-17,387L37,387ZM10,350L-29,434L49,434ZM10,393L-41,481L61,481ZM5,434L5,472L15,472L15,434ZM60,304L33,382L87,382ZM60,346L22,429L98,429ZM60,388L10,476L110,476ZM55,429L55,466L65,466L65,429ZM105,390L90,433L120,433ZM105,413L84,459L126,459ZM105,437L77,485L133,485ZM102,459L102,483L108,483L108,459ZM150,359L127,426L173,426ZM150,395L117,466L183,466ZM150,432L107,507L193,507ZM146,466L146,499L154,499L154,466ZM195,368L171,440L219,440ZM195,407L160,482L230,482ZM195,445L149,525L241,525ZM191,482L191,517L199,517L199,482ZM240,405L217,472L263,472ZM240,441L207,511L273,511ZM240,477L197,551L283,551ZM236,511L236,544L244,544L244,511ZM285,449L265,507L305,507ZM285,480L257,542L313,542ZM285,512L248,577L322,577ZM282,542L282,571L288,571L288,542ZM330,446L305,519L355,519ZM330,485L294,563L366,563ZM330,525L283,607L377,607ZM326,563L326,598L334,598L334,563ZM375,489L353,555L397,555ZM375,525L343,594L407,594ZM375,560L333,633L417,633ZM371,594L371,626L379,626L379,594ZM420,492L393,570L447,570ZM420,534L382,617L458,617ZM420,576L370,664L470,664ZM415,617L415,654L425,654L425,617ZM470,570L450,629L490,629ZM470,602L441,665L499,665ZM470,634L432,701L508,701ZM466,665L466,695L474,695L474,665ZM520,604L499,667L541,667ZM520,638L489,705L551,705ZM520,672L480,742L560,742ZM516,705L516,736L524,736L524,705Z\"/><\/g><g class=\"gx-sw gx-sw2\" fill=\"#070b24\"><path d=\"M1660,375L1637,444L1683,444ZM1660,412L1626,485L1694,485ZM1660,449L1616,526L1704,526ZM1656,485L1656,518L1664,518L1664,485ZM1615,413L1597,466L1633,466ZM1615,442L1589,498L1641,498ZM1615,471L1581,530L1649,530ZM1612,498L1612,525L1618,525L1618,498ZM1570,395L1548,461L1592,461ZM1570,431L1538,500L1602,500ZM1570,466L1528,540L1612,540ZM1566,500L1566,532L1574,532L1574,500ZM1525,390L1499,466L1551,466ZM1525,431L1488,512L1562,512ZM1525,472L1476,558L1574,558ZM1520,512L1520,549L1530,549L1530,512ZM1480,457L1462,509L1498,509ZM1480,486L1455,541L1505,541ZM1480,514L1447,572L1513,572ZM1477,541L1477,567L1483,567L1483,541ZM1435,443L1411,513L1459,513ZM1435,481L1400,555L1470,555ZM1435,519L1390,598L1480,598ZM1431,555L1431,590L1439,590L1439,555ZM1390,506L1372,559L1408,559ZM1390,535L1364,591L1416,591ZM1390,564L1356,623L1424,623ZM1387,591L1387,618L1393,618L1393,591ZM1345,488L1319,565L1371,565ZM1345,530L1307,612L1383,612ZM1345,571L1296,658L1394,658ZM1340,612L1340,648L1350,648L1350,612ZM1300,574L1282,628L1318,628ZM1300,603L1274,660L1326,660ZM1300,632L1266,692L1334,692ZM1297,660L1297,687L1303,687L1303,660ZM1255,647L1243,683L1267,683ZM1255,666L1237,705L1273,705ZM1255,686L1232,727L1278,727ZM1253,705L1253,726L1257,726L1257,705ZM1210,690L1198,725L1222,725ZM1210,709L1193,747L1227,747ZM1210,728L1187,768L1233,768ZM1208,747L1208,767L1212,767L1212,747ZM1165,701L1148,752L1182,752ZM1165,728L1140,782L1190,782ZM1165,756L1133,812L1197,812ZM1162,782L1162,808L1168,808L1168,782ZM1120,703L1096,775L1144,775ZM1120,742L1085,818L1155,818ZM1120,780L1074,861L1166,861ZM1116,818L1116,853L1124,853L1124,818Z\"/><\/g><\/svg><div class=\"gx-flies\"><i class=\"gx-ff gx-f0\" style=\"left:9%;top:82%;--dx:-20px;--dy:-92px;animation-duration:19s;animation-delay:-12s\"><\/i><i class=\"gx-ff gx-f1\" style=\"left:10%;top:62%;--dx:10px;--dy:-46px;animation-duration:18s;animation-delay:-10s\"><\/i><i class=\"gx-ff gx-f2\" style=\"left:13%;top:93%;--dx:-12px;--dy:-94px;animation-duration:16s;animation-delay:-8s\"><\/i><i class=\"gx-ff gx-f0\" style=\"left:35%;top:44%;--dx:26px;--dy:-52px;animation-duration:16s;animation-delay:-4s\"><\/i><i class=\"gx-ff gx-f1\" style=\"left:35%;top:80%;--dx:-26px;--dy:-46px;animation-duration:18s;animation-delay:-13s\"><\/i><i class=\"gx-ff gx-f2\" style=\"left:62%;top:49%;--dx:-14px;--dy:-46px;animation-duration:14s;animation-delay:-16s\"><\/i><i class=\"gx-ff gx-f0\" style=\"left:23%;top:49%;--dx:6px;--dy:-96px;animation-duration:11s;animation-delay:-13s\"><\/i><i class=\"gx-ff gx-f1\" style=\"left:62%;top:80%;--dx:-7px;--dy:-121px;animation-duration:18s;animation-delay:-13s\"><\/i><i class=\"gx-ff gx-f2\" style=\"left:50%;top:91%;--dx:27px;--dy:-57px;animation-duration:13s;animation-delay:-4s\"><\/i><i class=\"gx-ff gx-f0\" style=\"left:34%;top:72%;--dx:-26px;--dy:-104px;animation-duration:13s;animation-delay:-16s\"><\/i><i class=\"gx-ff gx-f1\" style=\"left:83%;top:64%;--dx:-5px;--dy:-74px;animation-duration:18s;animation-delay:-18s\"><\/i><i class=\"gx-ff gx-f2\" style=\"left:93%;top:79%;--dx:-16px;--dy:-121px;animation-duration:13s;animation-delay:-7s\"><\/i><i class=\"gx-ff gx-f0\" style=\"left:28%;top:57%;--dx:24px;--dy:-123px;animation-duration:12s;animation-delay:-1s\"><\/i><i class=\"gx-ff gx-f1\" style=\"left:84%;top:45%;--dx:-39px;--dy:-74px;animation-duration:13s;animation-delay:-13s\"><\/i><i class=\"gx-ff gx-f2\" style=\"left:7%;top:81%;--dx:-36px;--dy:-53px;animation-duration:12s;animation-delay:-17s\"><\/i><i class=\"gx-ff gx-f0\" style=\"left:39%;top:46%;--dx:-29px;--dy:-126px;animation-duration:11s;animation-delay:-17s\"><\/i><\/div><div class=\"gx-vig\"><\/div><div class=\"gx-flash\"><\/div><\/div>", GX_MARK = "<svg viewBox=\"0 0 60 60\" aria-hidden=\"true\"><defs><linearGradient id=\"gxBkW\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#fff\"/><stop offset=\"1\" stop-color=\"#d3e2ff\"/><\/linearGradient><linearGradient id=\"gxBkA\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#ffd27a\"/><stop offset=\"1\" stop-color=\"#f26a2e\"/><\/linearGradient><\/defs><rect class=\"gx-bk\" x=\"8\" y=\"10\" width=\"22\" height=\"11\" rx=\"3\" fill=\"url(#gxBkW)\"/><rect class=\"gx-bk\" x=\"33\" y=\"10\" width=\"19\" height=\"11\" rx=\"3\" fill=\"url(#gxBkW)\"/><rect class=\"gx-bk\" x=\"8\" y=\"24\" width=\"10\" height=\"11\" rx=\"3\" fill=\"url(#gxBkW)\"/><rect class=\"gx-bk gx-acc\" x=\"21\" y=\"24\" width=\"22\" height=\"11\" rx=\"3\" fill=\"url(#gxBkA)\"/><rect class=\"gx-bk\" x=\"46\" y=\"24\" width=\"6\" height=\"11\" rx=\"3\" fill=\"url(#gxBkW)\"/><rect class=\"gx-bk\" x=\"8\" y=\"38\" width=\"22\" height=\"11\" rx=\"3\" fill=\"url(#gxBkW)\"/><rect class=\"gx-bk\" x=\"33\" y=\"38\" width=\"19\" height=\"11\" rx=\"3\" fill=\"url(#gxBkW)\"/><\/svg>"; /* filled in by the build (src/scene.html, src/mark.html) */

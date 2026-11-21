@@ -11,7 +11,7 @@ SITE_URL=arg('--site-url','')  # the customer page address (goes into the ready-
 assert not SITE_URL or __import__('re').fullmatch(r'https?://[^\s"\'<>\\]+', SITE_URL), 'bad --site-url'
 rd=lambda n:(S/n).read_text(encoding='utf-8')
 EN_JSON=json.dumps(json.loads((R/'i18n/en.json').read_text(encoding='utf-8')),ensure_ascii=False,separators=(',',':')).replace('</','<\\/')  # English texts (see tools/i18n_extract.mjs)
-MODULES=['10-icons.js','05-crypto.js','06-token.js','00-core.js','01-i18n.js','02-util.js','03-xlsx.js','20-screens.js','30-invoice.js','34-bookings.js','35-alarms.js','39-push.js','37-automation.js','36-expenses.js','38-reports.js','40-other.js','42-ops.js','44-stock.js','45-pay.js','46-sales.js','47-pdf.js','48-docs.js','49-staff.js','50-users.js','51-lists.js','52-import.js','53-vouchers.js','dev/10-dev.js','99-boot.js']
+MODULES=['10-icons.js','05-crypto.js','06-token.js','00-core.js','01-i18n.js','02-util.js','03-xlsx.js','20-screens.js','30-invoice.js','34-bookings.js','35-alarms.js','39-push.js','37-automation.js','36-expenses.js','38-reports.js','40-other.js','42-ops.js','44-stock.js','45-pay.js','46-sales.js','47-pdf.js','48-docs.js','49-staff.js','50-users.js','51-lists.js','52-import.js','53-vouchers.js','dev/10-dev.js','98-nav.js','99-boot.js']
 assert not (CUSTOMER and GATED), 'choose --customer or --gated'
 def js_str(s):  # JS string literal that is safe inside an inline <script>
     return json.dumps(s,ensure_ascii=False).replace('</','<\\/').replace('<!--','<\\!--')
@@ -33,7 +33,7 @@ if GATED:
 js="(function(){\n'use strict';\n"+"\n".join(mod(f) for f in MODULES)+"\n})();"
 VER=(R/'version.txt').read_text().strip()
 title="النسخة الأولى التجريبية لبرنامج المحاسبات لمواد البناء"
-fonts='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap">'
+fonts='<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap">'
 body=f'<div id="app" dir="rtl" lang="ar"><nav id="perm-sb" aria-label="القائمة الرئيسية"></nav><div id="main-col" style="flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden"><main id="view"></main><footer class="credit">تصميم بواسطة <bdi dir="ltr">MINA.N.F</bdi><span class="sep">·</span><bdi dir="ltr" class="ver">Version {VER}</bdi></footer></div></div><nav id="mob-nav" style="display:none" dir="rtl" aria-label="القائمة الرئيسية"><div id="mob-nav-scroll"></div></nav><div id="mob-more-sheet" dir="rtl"></div><div id="toasts" dir="rtl" aria-live="polite"></div><div id="modals" dir="rtl"></div>\n<script>\n{js}\n</script>'
 icons=(R/'src/icons.html').read_text(encoding='utf-8').strip()  # tab icon + home-screen icon (tools/mkicon.py)
 pwa=f'<link rel="manifest" href="{"manifest.webmanifest" if GATED else "manifest-dev.webmanifest"}"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="{"المحاسبات" if GATED else "Mina.Dev"}"><meta name="theme-color" content="#060a22">' if (GATED or SITE_URL) else ''  # installable on a phone's home screen (needed by the iPhone for push); only the hosted-site pages
