@@ -1,5 +1,6 @@
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>النسخة الأولى التجريبية لبرنامج المحاسبات لمواد البناء</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png?v=f938a712"><link rel="icon" type="image/png" sizes="64x64" href="icon-64.png?v=f938a712"><link rel="shortcut icon" href="favicon.ico?v=f938a712"><link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=f938a712">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap">
 <style>
@@ -142,58 +143,65 @@ svg { display: block; }
 
 /* ---------- Permanent Sidebar ---------- */
 #perm-sb {
-  width: 200px;
-  min-width: 200px;
-  background: var(--surface, #fff);
-  border-left: 1px solid var(--red-line, #e5e7eb);
+  width: 185px;
+  min-width: 185px;
+  background: var(--surface);
+  border-left: 1px solid var(--line);
   display: flex;
   flex-direction: column;
-  padding: 12px 8px;
-  gap: 4px;
+  padding: 10px 7px 10px;
+  gap: 2px;
   overflow-y: auto;
   position: sticky;
   top: 0;
   height: 100vh;
-  box-shadow: -2px 0 8px rgba(0,0,0,.06);
+  box-shadow: var(--shadow);
   z-index: 10;
+  scrollbar-width: thin;
 }
 #perm-sb .sb-brand {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 800;
-  color: var(--fg, #111);
+  color: var(--fg3);
   text-align: center;
-  padding: 8px 4px 12px;
-  border-bottom: 1px solid var(--red-line, #e5e7eb);
+  padding: 6px 4px 10px;
+  border-bottom: 1px solid var(--line);
   margin-bottom: 4px;
-  letter-spacing: .02em;
+  letter-spacing: .12em;
+  text-transform: uppercase;
 }
 .psb-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: 9px;
+  padding: 9px 10px;
   border-radius: 10px;
   cursor: pointer;
   border: none;
   background: none;
   width: 100%;
   text-align: right;
-  color: var(--fg, #333);
-  font-family: inherit;
-  font-size: 13px;
+  color: var(--fg2);
+  font-family: var(--font);
+  font-size: 12.5px;
   font-weight: 600;
-  transition: background .15s, color .15s;
+  transition: background .13s, color .13s;
   -webkit-tap-highlight-color: transparent;
+  line-height: 1.3;
 }
-.psb-item:hover { background: var(--red-line, #f3f4f6); }
-.psb-item.active { background: var(--blue, #2563eb); color: #fff; }
+.psb-item:hover { background: var(--tile); color: var(--fg); }
+.psb-item.active {
+  background: var(--blue-soft);
+  color: var(--blue-t, var(--blue));
+  font-weight: 700;
+}
 .psb-item svg { width: 22px; height: 22px; flex-shrink: 0; }
 .psb-item span { flex: 1; }
 
-@media (max-width: 600px) {
-  #perm-sb { width: 56px; min-width: 56px; padding: 8px 4px; gap: 2px; }
+@media (max-width: 640px) {
+  #perm-sb { width: 52px; min-width: 52px; padding: 8px 4px; gap: 1px; }
   #perm-sb .sb-brand { display: none; }
-  .psb-item { padding: 10px; justify-content: center; gap: 0; border-radius: 8px; }
+  .psb-item { padding: 9px 0; justify-content: center; gap: 0; border-radius: 10px; }
   .psb-item span { display: none; }
   .psb-item svg { width: 24px; height: 24px; }
 }
