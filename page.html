@@ -253,14 +253,65 @@ svg { display: block; }
 }
 .psb-back-btn:hover { background: var(--sb-glass); }
 
-@media (max-width: 640px) {
-  :root { --sb-w: 50px; }
-  #perm-sb .sb-brand, .psb-item span, .psb-sub-list, .psb-divider { display: none !important; }
-  .psb-item { padding: 9px 0; justify-content: center; gap: 0; border-radius: 9px; }
-  .psb-item.active::after { display: none; }
-  .psb-item svg { width: 22px; height: 22px; }
-  .psb-nav { padding: 6px 4px; }
+@media (max-width: 700px) {
+  /* On mobile: sidebar floats fixed on the right, content takes full width */
+  #app { flex-direction: column; }
+  #perm-sb {
+    position: fixed;
+    top: 0; right: 0; bottom: 0;
+    width: 170px !important;
+    min-width: 170px !important;
+    height: 100vh;
+    transform: translateX(145px); /* show only 25px tab */
+    transition: transform .3s cubic-bezier(.22,1,.36,1);
+    box-shadow: -4px 0 24px rgba(0,0,0,.35);
+  }
+  #perm-sb.mob-open {
+    transform: translateX(0);
+  }
+  #perm-sb .sb-brand { display: flex !important; }
+  .psb-item span { display: inline !important; }
+  .psb-nav { padding: 8px 6px; }
+  #main-col {
+    width: 100%;
+    padding-right: 0 !important;
+    margin-right: 0 !important;
+  }
+  /* Pull tab to open sidebar */
+  #sb-pull-tab {
+    display: flex !important;
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 56px;
+    background: var(--void2);
+    border-radius: 8px 0 0 8px;
+    border: 1px solid var(--sb-border);
+    border-right: none;
+    align-items: center;
+    justify-content: center;
+    color: var(--sb-snow2);
+    font-size: 11px;
+    cursor: pointer;
+    z-index: 20;
+    transition: right .3s;
+    writing-mode: vertical-rl;
+    letter-spacing: .05em;
+  }
+  #perm-sb.mob-open ~ * #sb-pull-tab,
+  body.sb-open #sb-pull-tab { right: 170px; }
+  #sb-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.45);
+    z-index: 9;
+  }
+  #sb-overlay.on { display: block; }
 }
+#sb-pull-tab { display: none; }
+#sb-overlay { display: none; }
 
 /* ---------- Credit ---------- */
 .credit { text-align: center; font-size: 12.5px; font-weight: 600; color: var(--fg3); padding-top: clamp(16px, 2vw, 26px); letter-spacing: .02em; }
@@ -1192,7 +1243,7 @@ tr.c-tot td { font-weight: 800; background: var(--tile); }
 .paper .sigs small { display: block; font-size: 12px; color: #666; margin-top: 3px; }
 
 </style>
-<div id="app" dir="rtl" lang="ar"><nav id="perm-sb" aria-label="القائمة الرئيسية"></nav><div id="main-col" style="flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden"><main id="view"></main><footer class="credit">تصميم بواسطة <bdi dir="ltr">MINA.N.F</bdi><span class="sep">·</span><bdi dir="ltr" class="ver">Version 8.49</bdi></footer></div></div><div id="toasts" dir="rtl" aria-live="polite"></div><div id="modals" dir="rtl"></div>
+<div id="sb-overlay"></div><button id="sb-pull-tab" aria-label="فتح القائمة">☰</button><div id="app" dir="rtl" lang="ar"><nav id="perm-sb" aria-label="القائمة الرئيسية"></nav><div id="main-col" style="flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden"><main id="view"></main><footer class="credit">تصميم بواسطة <bdi dir="ltr">MINA.N.F</bdi><span class="sep">·</span><bdi dir="ltr" class="ver">Version 8.49</bdi></footer></div></div><div id="toasts" dir="rtl" aria-live="polite"></div><div id="modals" dir="rtl"></div>
 <script>
 (function(){
 'use strict';
@@ -2335,6 +2386,28 @@ function renderPsbNav() {
 }
 
 buildPermSidebar();
+
+/* Mobile sidebar toggle */
+(function() {
+  const sb = document.getElementById('perm-sb');
+  const overlay = document.getElementById('sb-overlay');
+  const pullTab = document.getElementById('sb-pull-tab');
+  function openSb() { sb.classList.add('mob-open'); overlay.classList.add('on'); }
+  function closeSb() { sb.classList.remove('mob-open'); overlay.classList.remove('on'); }
+  if (pullTab) {
+    pullTab.addEventListener('click', () => sb.classList.contains('mob-open') ? closeSb() : openSb());
+    pullTab.addEventListener('touchend', e => { e.preventDefault(); sb.classList.contains('mob-open') ? closeSb() : openSb(); }, { passive: false });
+  }
+  if (overlay) {
+    overlay.addEventListener('click', closeSb);
+    overlay.addEventListener('touchend', e => { e.preventDefault(); closeSb(); }, { passive: false });
+  }
+  /* close sidebar on nav on mobile */
+  const _origGo2 = window._psbGoHook;
+  document.getElementById('perm-sb').addEventListener('click', () => {
+    if (window.innerWidth <= 700) setTimeout(closeSb, 120);
+  });
+})();
 
 function updateSidebarActive(screenName) {
   document.querySelectorAll('.psb-item').forEach(btn => {
