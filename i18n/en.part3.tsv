@@ -1,0 +1,137 @@
+421	Could not read the image
+422	VAT rate must be between 0 and 100
+423	Business details saved
+424	On
+425	Off
+426	Current PIN
+427	New PIN
+428	PIN
+429	Confirm PIN
+430	Remove PIN
+431	If you set it, the app asks for it on opening and after logging out. Only the admin can add or change it.
+432	Set the admin PIN first, then you can set an optional login PIN.
+433	Login PIN
+434	Remove login PIN
+435	It is asked when saving any change in Settings (items & prices, business details, data clearing, restore). 4 to 8 digits.
+436	Save PIN
+437	Login PIN (optional)
+438	Save login PIN
+439	Note: the protection here works at the browser level. It stops an ordinary user from entering or editing, but it is not full security. Full security (accounts and users on a server) is a later step.
+440	The current PIN is incorrect
+441	The PIN must be 4 to 8 digits
+442	The confirmation does not match
+443	It must be different from the login PIN
+444	Admin PIN saved
+445	Removing the PIN makes Settings open to any user. Do you want to continue?
+446	Admin PIN removed
+447	The login PIN must be 4 to 8 digits
+448	The login PIN must be different from the admin PIN
+449	Login PIN saved
+450	Login PIN removed
+451	Clear invoices
+452	Clear expenses
+453	Clear customers & their collections
+454	Clear suppliers, their purchases & payments
+455	Clear reservations
+456	Clear stock & items
+457	The app now contains a sample item (Iron, 100 tons). Clear the data before starting real work.
+458	Clearing is permanent and cannot be undone. Take a backup before clearing.
+459	{1} items
+460	Clear
+461	Clear all data
+462	Stock, customers, suppliers, reservations, invoices and expenses
+463	Clear all
+464	Restore sample data
+465	Are you sure about {1}? This cannot be undone.
+466	Cleared
+467	Are you sure you want to clear all data? This cannot be undone.
+468	All data cleared
+469	All current data will be replaced with the sample data. Do you want to continue?
+470	Sample data restored
+471	Backup
+472	The backup appears here, or paste a previous backup to restore it
+473	Data is saved in this browser only. Press "Copy backup" and save the text in a file on your side. To restore it, paste it in the box and press "Restore". PINs are not included in the backup.
+474	Copy backup
+475	Restore from text
+476	Enter the admin PIN to view the backup
+477	Backup copied
+478	Select the text and copy it manually
+479	The text is not valid
+480	This text is not a backup of the app
+481	Current data will be replaced with the backup in the box. Do you want to continue?
+482	Data restored
+483	Press to enter
+485	Enter
+486	Press anywhere to enter
+487	Cement
+488	Sand
+489	Gravel
+490	Red brick
+491	thousand
+492	Al-Nahda Contracting Co. (demo)
+493	Industrial Zone
+494	Al-Amal Construction Est. (demo)
+495	First District
+496	District Contractor (demo)
+497	Market Street
+498	Iron Supplier (demo)
+499	Cement Supplier (demo)
+500	Iron reservation
+501	Cement reservation
+502	Purchases: Iron
+503	Purchases: Cement
+504	Labor
+505	Goods transport
+506	Electricity
+507	Driver's tip
+508	Designed by
+509	Paste the code here
+510	The code the designer sent you
+511	To get the real version, contact the designer.
+512	The code is not valid. Make sure you copied it completely as the designer sent it.
+513	The trial version has ended
+514	A change in the device time was detected, so the trial was ended.
+515	The designer stopped this trial.
+516	The trial period has ended ({1})
+517	{1} and the demo data was erased from this device.
+518	{1} day(s)
+519	Less than 10 minutes left before the trial ends
+520	Less than a minute left before the trial ends
+521	Backup and restore are not available in the trial version. All data here is fake and is erased automatically when the time ends.
+522	Accounting Program Trial
+523	This version works with a special trial link the designer sends you. Open the full link, or paste the code here.
+524	Preparing the trial version…
+525	The code is not valid
+526	The code is incorrect or incomplete. Ask the designer for a new code, or paste the full code.
+527	This link has ended
+528	This link was used and its time has ended. Ask the designer for a new link, or paste a new code here.
+529	The link has expired
+530	This link was not opened within the allowed time. Ask the designer for a new link.
+531	Ends {1} {2}
+532	No fixed duration
+533	Trial version • demo data{1}
+534	Try again
+535	To contact the designer or renew the code, get in touch with the designer.
+536	The code is incomplete. Enter it in full as the designer sent it.
+537	Your data is saved on your device and will not be erased.
+538	A change in the device time was detected
+539	Set the device date and time correctly, then reopen the page. {1}
+540	The code has been stopped
+541	The designer stopped this code. {1} The program works again as soon as it is turned back on, or when a new code is entered.
+542	The code has ended
+543	The time set for this code has ended ({1}). {2} The program works again when a new code is entered.
+544	The code ends soon{1}
+545	Less than a day left before the code ends
+546	Less than 10 minutes left before the code ends
+547	Less than a minute left before the program stops — your data is saved
+548	Accounting Program
+549	This program works with a special code the designer sends you. Enter the code here to get in.
+550	Opening the program…
+551	The code is incorrect or incomplete. Ask the designer for a new code, or enter the full code.
+552	This code has ended
+553	This code was used and its time has ended. Ask the designer for a new code, or enter it here.
+554	The code has expired
+555	This code was not used within the allowed time. Ask the designer for a new code.
+556	First Trial Version of the Building Materials Accounting Program
+557	Building Materials Accounting Program Trial
+558	All data here is fake, for trial only, and is erased automatically when the time ends.

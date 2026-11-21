@@ -1,0 +1,5 @@
+Mac wrapper (Electron 37). app.html = customer.html (copy it here on every release).
+npm i --save-dev electron@37.10.3 @electron/packager playwright-core
+npx electron-packager . Accounts --platform=darwin --arch=x64,arm64 --electron-version=37.10.3 --icon=icon --app-bundle-id=com.minanf.accounts --app-version=<ver> --asar --overwrite --prune=true --out=dist --ignore="^/(test_app\.mjs|icon\.png|dist|package-lock\.json)"
+then: delete *.lproj except en/ar, ad-hoc sign with rcodesign (cargo install apple-codesign), zip -r -y -X, split -b 29M (upload limit 30 MiB).
+Test on Linux: xvfb-run -a node test_app.mjs

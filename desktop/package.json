@@ -1,0 +1,27 @@
+{
+  "name": "myfirstpro-desktop",
+  "productName": "Myfirstpro Desktop",
+  "version": "1.0.0",
+  "description": "Myfirstpro Desktop",
+  "main": "src/main/main.js",
+  "author": "MINA.N.F",
+  "license": "UNLICENSED",
+  "private": true,
+  "devDependencies": {
+    "@electron/fuses": "^1.8.0",
+    "electron": "45.3.1",
+    "electron-builder": "^26.0.0",
+    "playwright-core": "^1.64.1",
+    "resedit": "^2.0.3"
+  },
+  "scripts": {
+    "test": "node --test test/unit/*.test.js",
+    "e2e": "xvfb-run -a node test/e2e/e2e.mjs",
+    "build:dev": "node tools/build.js --channel developer",
+    "build:prod": "node tools/build.js --channel production",
+    "verify:dev": "node tools/verify-artifact.js --channel developer --dir dist/developer",
+    "verify:prod": "node tools/verify-artifact.js --channel production --dir dist/production",
+    "code": "node tools/make-license.js",
+    "update": "node tools/make-update.js"
+  }
+}

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تفعيل Myfirstpro Desktop</title><link rel="stylesheet" href="activation.css"></head>
+<body>
+<div id="devbar" hidden>نسخة المطوّر — Developer Build</div>
+<main class="card">
+  <div class="logo"><svg width="64" height="64" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+<defs>
+ <linearGradient id="abg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f6bc0"/><stop offset="1" stop-color="#0c2650"/></linearGradient>
+ <linearGradient id="agl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".20"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/></linearGradient>
+ <linearGradient id="aam" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffbf5a"/><stop offset="1" stop-color="#e0912a"/></linearGradient>
+ <filter id="ash" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#04162f" flood-opacity=".45"/></filter>
+</defs>
+<rect x="48" y="48" width="928" height="928" rx="224" fill="url(#abg)"/>
+<rect x="48" y="48" width="928" height="928" rx="224" fill="url(#agl)"/>
+<g filter="url(#ash)">
+ <path d="M300 700 V318 L512 540 L724 318 V700" fill="none" stroke="#fff" stroke-width="128" stroke-linejoin="round" stroke-linecap="round"/>
+</g>
+<g filter="url(#ash)">
+ <rect x="300" y="778" width="196" height="64" rx="18" fill="url(#aam)"/>
+ <rect x="528" y="778" width="196" height="64" rx="18" fill="url(#aam)"/>
+</g>
+</svg></div>
+  <h1 id="pname">Myfirstpro Desktop</h1>
+  <p class="sub">تفعيل البرنامج</p>
+  <div id="msg" class="msg" role="status" hidden></div>
+  <section>
+    <label class="lbl" for="key">كود التفعيل</label>
+    <textarea id="key" dir="ltr" rows="4" spellcheck="false" autocomplete="off" placeholder="MPD2.…"></textarea>
+    <div class="row"><button id="go" class="primary" type="button">تفعيل</button></div>
+    <p class="hint">الصق الكود كما وصلك من المطوّر، ثم اضغط «تفعيل». لا حاجة لأي بيانات أخرى.</p>
+  </section>
+  <aside class="notice" role="note"><b>تنبيه مهم:</b> <span id="keep">احتفظ بكود التفعيل في مكان آمن. عند أي تحديث للبرنامج سيطلب منك إدخاله مرة أخرى.</span></aside>
+  <section id="dev" hidden>
+    <label class="lbl" for="pw">دخول المطوّر</label>
+    <input id="pw" type="password" dir="ltr" autocomplete="off" spellcheck="false" placeholder="كلمة مرور المطوّر">
+    <div class="row"><button id="devgo" class="primary" type="button">دخول بدون كود</button><button id="issuer" class="ghost" type="button">مولّد أكواد التفعيل…</button></div>
+  </section>
+  <section class="foot">
+    <button id="export" class="link" type="button">تصدير نسخة من بياناتي</button>
+    <button id="quit" class="link" type="button">خروج</button>
+    <p class="hint">بياناتك محفوظة على هذا الجهاز ولا تُحذف عند عدم التفعيل أو انتهاء الكود.</p>
+  </section>
+  <p class="credit">تصميم بواسطة <bdi dir="ltr">MINA.N.F</bdi> · <bdi dir="ltr" id="ver"></bdi></p>
+</main>
+<script src="activation.js"></script>
+</body></html>

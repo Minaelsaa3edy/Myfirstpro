@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مولّد أكواد التفعيل</title><link rel="stylesheet" href="issuer.css"></head>
+<body>
+<div id="devbar">نسخة المطوّر — مولّد أكواد التفعيل</div>
+<main class="wrap">
+  <div id="msg" class="msg" role="status" hidden></div>
+
+  <section id="lockbox">
+    <h2>فتح المولّد</h2>
+    <p class="hint">اكتب كلمة مرور المطوّر. تُستخدم لفتح مفاتيح الإصدار داخل هذا البرنامج فقط، ولا تُحفظ في أي مكان، ويُغلق المولّد تلقائيًا بعد 10 دقائق بلا استخدام.</p>
+    <input id="pw" type="password" dir="ltr" autocomplete="off" spellcheck="false" placeholder="كلمة مرور المطوّر">
+    <div class="row"><button id="unlock" class="primary" type="button">فتح</button></div>
+  </section>
+
+  <div id="tool" hidden>
+    <section>
+      <h2>إصدار كود جديد</h2>
+      <div class="presets" id="presets"></div>
+      <div class="grid">
+        <label>النسخة
+          <select id="channel"><option value="production">إنتاج (Production) — للعملاء</option><option value="developer">مطوّر (Developer)</option></select>
+        </label>
+        <label>نوع الكود
+          <select id="unit"><option value="permanent">دائم</option><option value="minutes">دقائق</option><option value="hours">ساعات</option><option value="days">أيام</option></select>
+        </label>
+        <label id="valbox">المدة <input id="value" type="number" min="1" max="65535" value="24" dir="ltr"></label>
+        <label>مهلة التفعيل (أيام)
+          <input id="within" type="number" min="0" max="65535" dir="ltr" placeholder="تلقائي">
+        </label>
+        <label>اسم العميل (اختياري)
+          <input id="label" type="text" maxlength="60" placeholder="للتمييز في السجل وفي الرسالة">
+        </label>
+        <label>عدد الأكواد
+          <input id="count" type="number" min="1" max="50" value="1" dir="ltr">
+        </label>
+      </div>
+      <p class="hint" id="hint"></p>
+      <div class="row"><button id="issue" class="primary" type="button">إصدار الكود</button><button id="lock" class="ghost" type="button">قفل المولّد</button></div>
+    </section>
+
+    <section id="out" hidden>
+      <h2>الأكواد الجاهزة</h2>
+      <div id="items"></div>
+      <div class="row" id="bulk" hidden><button id="copyall" class="ghost" type="button">نسخ كل الأكواد</button><button id="saveall" class="ghost" type="button">حفظ في ملف…</button></div>
+    </section>
+
+    <section>
+      <h2>آخر الأكواد المُصدرة</h2>
+      <div id="hist" class="hist"></div>
+    </section>
+  </div>
+</main>
+<script src="issuer.js"></script>
+</body></html>

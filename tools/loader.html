@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#060a22"><meta name="robots" content="noindex,nofollow,noarchive"><meta name="referrer" content="no-referrer">@@ICONS@@<link rel="manifest" href="manifest.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="المحاسبات"><title>دخول</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#060a22;color:#fff;font:16px/1.7 "Cairo",system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif}
+button,input{font-family:inherit}
+@@SCENE_CSS@@
+</style></head><body>
+@@SCENE@@
+<div class="gx-wrap"><main class="gx-card" id="v"><div class="gx-mark">@@MARK@@</div>
+<h1 id="t">دخول</h1><p id="s"></p><div id="f"></div><div class="gx-load" aria-hidden="true"></div><p class="gx-err" id="e" role="alert" aria-live="polite"></p></main></div>
+<footer class="gx-credit">تصميم بواسطة <bdi dir="ltr">MINA.N.F</bdi><span class="sep">·</span><bdi dir="ltr">Version @@VER@@</bdi></footer>
+<noscript><p style="position:relative;z-index:3;text-align:center">يلزم تفعيل جافاسكربت لفتح هذه الصفحة.</p></noscript>
+<script>
+(function () {
+'use strict';
+const D = @@DATA@@;
+const $ = s => document.querySelector(s), S = window.crypto && window.crypto.subtle;
+const u8 = s => { s = String(s).replace(/-/g, '+').replace(/_/g, '/'); while (s.length % 4) s += '='; const b = atob(s), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; };
+const b64u = u => { let s = ''; u.forEach(c => { s += String.fromCharCode(c); }); return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); };
+const LS = { get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* blocked */ } }, del: k => { try { localStorage.removeItem(k); } catch (e) { /* blocked */ } } };
+const CK = 'vault.' + D.vid;
+let PREF_U = ''; /* a user name that came with a link / the in-program card */
+const say = m => { $('#e').textContent = m || ''; };
+const REDUCE = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+const fail = m => { say(m); const c = $('#v'); c.classList.remove('gx-bad'); void c.offsetWidth; c.classList.add('gx-bad'); }; /* message + a short shake of the card */
+const busy = on => document.body.classList.toggle('gx-busy', !!on);
+const ICO = {
+  key: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2 20 3m-4 4 3 3m-6-1 2.5 2.5"/></svg>',
+  lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10.5" width="16" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>',
+  eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  eyeOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18M10.6 5.1A10 10 0 0 1 12 5c6.4 0 10 7 10 7a17 17 0 0 1-3.2 4M6.5 6.6A17 17 0 0 0 2 12s3.6 7 10 7a10 10 0 0 0 4.2-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>',
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c.6-4 3.8-6.5 7.5-6.5s6.9 2.5 7.5 6.5"/></svg>',
+  go: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5m6-6-6 6 6 6"/></svg>'
+};
+const btnHtml = '<button id="b" class="gx-btn" type="button"><span id="bt">دخول</span>' + ICO.go + '</button>';
+const btnLabel = t => { $('#bt').textContent = t; };
+const TXT = {
+  gate: ['دخول', 'اكتب اسم المستخدم والكود اللذين أرسلهما لك المصمم.'],
+  dev: ['دخول المصمم', 'اكتب كلمة المرور.']
+}[D.kind];
+$('#t').textContent = TXT[0]; $('#s').textContent = TXT[1];
+
+/* the user name that may be tied to a code: typed the way the designer wrote it, compared after a light clean-up (case, spaces, Arabic marks / letter forms / digits).
+   The code's slot is then unlocked by "u1|name|code" instead of the code alone (the dev page makes the slot the same way), so a bound code does not open without its name. */
+const unorm = s => String(s || '').normalize('NFKC').replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ى/g, 'ي').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).toLowerCase().replace(/\s+/g, ' ').trim();
+const usecret = (user, c12) => { const n = unorm(user); return n ? 'u1|' + n + '|' + c12 : c12; };
+
+/* the page behind this gate: a developer page is one blob; the customer gate holds two (d = demo program, r = real program) and the code says which one it opens */
+const blobOf = p => D.kind === 'dev' ? D : (D.b || {})[p];
+async function decrypt(kb, p) { /* content key -> page html (throws when the key is wrong) */
+  const bl = blobOf(p); if (!bl) throw new Error('kind');
+  const key = await S.importKey('raw', kb, 'AES-GCM', false, ['decrypt']);
+  return new TextDecoder().decode(await S.decrypt({ name: 'AES-GCM', iv: u8(bl.iv) }, key, u8(bl.ct)));
+}
+async function unwrap(secret, slot) { /* typed code / password -> what the slot protects */
+  const mat = await S.importKey('raw', new TextEncoder().encode(secret), 'PBKDF2', false, ['deriveKey']);
+  const wk = await S.deriveKey({ name: 'PBKDF2', salt: u8(slot.s), iterations: slot.it, hash: 'SHA-256' }, mat, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  return new Uint8Array(await S.decrypt({ name: 'AES-GCM', iv: u8(slot.iv) }, wk, u8(slot.c)));
+}
+/* JSONP: a plain <script> request, so it works from any page without CORS; used to ask the code server (D.srv) */
+function jsonp(base, params, ms) {
+  return new Promise((res, rej) => {
+    const cb = '__j' + Math.random().toString(36).slice(2), s = document.createElement('script'); let done = false, t = 0;
+    const end = (ok, v) => { if (done) return; done = true; clearTimeout(t); try { delete window[cb]; } catch (e) { window[cb] = undefined; } s.remove(); ok ? res(v) : rej(v); };
+    t = setTimeout(() => end(false, new Error('timeout')), ms || 9000);
+    window[cb] = v => end(true, v); s.onerror = () => end(false, new Error('net'));
+    s.src = base + (base.indexOf('?') < 0 ? '?' : '&') + new URLSearchParams(Object.assign({}, params, { cb, _: Date.now() })).toString();
+    document.head.appendChild(s);
+  });
+}
+function launch(html) { /* replace this page by the program; wait until this page has fully loaded, or the old head (and its styles) would stay behind */
+  const go = () => { try { sessionStorage.setItem('gx.ck', CK); } catch (e) { /* no storage */ } /* tells the program it was opened from this gate, and which key remembers the code: "exit" in the program uses it */ document.open(); document.write(html); document.close(); };
+  if (document.readyState === 'complete') go(); else window.addEventListener('load', go, { once: true });
+}
+function hashParams() { try { return new URLSearchParams(location.hash.replace(/^#/, '')); } catch (e) { return new URLSearchParams(''); } }
+
+async function open_(kb, p, remember) {
+  const html = await decrypt(kb, p);
+  if (remember) LS.set(CK, D.kind === 'dev' ? b64u(kb) : p + '.' + b64u(kb));
+  document.body.classList.add('gx-ok');
+  await new Promise(r => setTimeout(r, REDUCE ? 0 : 560));
+  launch(html);
+}
+async function byPass(pw, remember) {
+  if (!pw || !D.pass) throw new Error('short');
+  await open_(await unwrap(pw, D.pass), 'dev', remember);
+}
+/* the code (XXXX-XXXX-XXXX-XXXX): its first 4 letters pick a slot on the code server, the other 12 open it.
+   The slot holds the signed code token, which program it is for (p: d demo / r real) and that program's key, so the code itself carries nothing readable. */
+async function byCode(raw, user) {
+  const c = String(raw || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (c.length !== 16) throw new Error('short');
+  if (!D.srv) throw new Error('net');
+  let slot = null, reached = false;
+  try { const r = await jsonp(D.srv, { a: 'slot', id: c.slice(0, 4) }, 10000); if (r && r.ok) { reached = true; slot = r.slot || null; } } catch (e) { /* server unreachable */ }
+  if (!slot) throw new Error(reached ? 'unknown' : 'net');
+  const bound = !!slot.un; /* the designer tied this code to a user name */
+  if (bound && !unorm(user)) throw new Error('user');
+  let o; try { o = JSON.parse(new TextDecoder().decode(await unwrap(bound ? usecret(user, c.slice(4)) : c.slice(4), slot))); } catch (e) { throw new Error(bound ? 'bound' : 'unknown'); } /* wrong code (or wrong name) */
+  if (!blobOf(o.p)) throw new Error('unknown');
+  history.replaceState(null, '', location.pathname + location.search + '#t=' + o.t);
+  await open_(u8(o.k), o.p, true);
+}
+const codeMsg = e => e.message === 'net' ? 'تعذر الاتصال. تأكد من الإنترنت وحاول مرة أخرى.' : e.message === 'user' ? 'هذا الكود مرتبط باسم مستخدم. اكتب اسم المستخدم في الخانة التي فوق الكود.' : e.message === 'bound' ? 'اسم المستخدم أو الكود غير صحيح. اكتبهما كما أرسلهما لك المصمم.' : 'الكود غير صحيح، أو لم يُفعَّل بعد. لو أرسله لك المصمم الآن انتظر دقيقة وحاول مرة أخرى.';
+/* the code is shown as XXXX-XXXX-XXXX-XXXX while typing; a pasted link that carries c=… is understood too */
+const CODE_RX = /(?:^|[#&?\s])c=([A-Za-z0-9-]+)/;
+const normCode = v => (CODE_RX.exec(v) ? CODE_RX.exec(v)[1] : v).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 16);
+const dashCode = c => c.replace(/(.{4})(?=.)/g, '$1-');
+function autoFormat(inp) {
+  inp.addEventListener('input', () => {
+    const v = inp.value, nv = dashCode(normCode(v)); if (nv === v) return;
+    const n = CODE_RX.test(v) ? 99 : v.slice(0, inp.selectionStart == null ? v.length : inp.selectionStart).replace(/[^A-Za-z0-9]/g, '').length;
+    let p = 0, k = 0; while (p < nv.length && k < n) { if (nv[p] !== '-') k++; p++; }
+    inp.value = nv; try { inp.setSelectionRange(p, p); } catch (e) { /* not selectable */ }
+  });
+}
+function form() {
+  const f = $('#f'); busy(false); $('#e').textContent = '';
+  if (D.kind === 'gate') {
+    f.innerHTML = '<label class="gx-field">' + ICO.user + '<span class="gx-sr">اسم المستخدم</span><input id="u" class="gx-un" type="text" inputmode="text" enterkeyhint="next" spellcheck="false" autocomplete="username" autocapitalize="none" autocorrect="off" maxlength="60" placeholder="اسم المستخدم"></label><div class="gx-gap"></div><label class="gx-field">' + ICO.key + '<span class="gx-sr">الكود</span><input id="i" type="text" inputmode="text" enterkeyhint="go" spellcheck="false" autocomplete="off" autocapitalize="characters" maxlength="200" placeholder="XXXX-XXXX-XXXX-XXXX"></label><div class="gx-gap"></div>' + btnHtml;
+    const go = async () => {
+      const c = normCode($('#i').value);
+      if (c.length !== 16) { $('#i').focus(); return fail('الكود غير مكتمل. اكتبه كاملاً كما أرسله المصمم.'); }
+      const b = $('#b'); b.disabled = true; btnLabel('جارٍ التحقق…'); say('');
+      try { await byCode(c, $('#u').value); } catch (e) { b.disabled = false; btnLabel('دخول'); fail(codeMsg(e)); (e.message === 'user' || e.message === 'bound' ? $('#u') : $('#i')).focus(); }
+    };
+    autoFormat($('#i')); $('#b').onclick = go; $('#i').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); go(); } };
+    $('#u').onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); $('#i').focus(); } };
+    if (PREF_U) $('#u').value = PREF_U;
+    ($('#u').value ? $('#i') : $('#u')).focus(); return;
+  }
+  f.innerHTML = '<label class="gx-field">' + ICO.lock + '<span class="gx-sr">كلمة المرور</span><input id="i" type="password" autocomplete="off" spellcheck="false" placeholder="كلمة المرور" class="gx-pw"><button class="gx-eye" id="eye" type="button" aria-label="إظهار كلمة المرور">' + ICO.eye + '</button></label><label class="gx-rm"><input type="checkbox" id="r"><span>تذكر هذا الجهاز</span></label><div class="gx-gap"></div>' + btnHtml;
+  $('#eye').onclick = () => { const i = $('#i'), show = i.type === 'password'; i.type = show ? 'text' : 'password'; $('#eye').innerHTML = show ? ICO.eyeOff : ICO.eye; i.focus(); };
+  const go = async () => {
+    const v = $('#i').value; if (!v.trim()) return;
+    const b = $('#b'); b.disabled = true; btnLabel('جارٍ التحقق…'); say('');
+    try { await byPass(v, $('#r').checked); }
+    catch (e) { b.disabled = false; btnLabel('دخول'); fail('كلمة المرور غير صحيحة.'); $('#i').focus(); }
+  };
+  $('#b').onclick = go; $('#i').onkeydown = e => { if (e.key === 'Enter') go(); };
+  $('#i').focus();
+}
+
+(async function start() {
+  if (!S) { $('#f').innerHTML = ''; return fail('افتح هذه الصفحة من رابط https في متصفح حديث.'); }
+  const P = hashParams();
+  let U = P.get('u') || ''; try { const q = sessionStorage.getItem('gx.u'); if (q) { U = U || q; sessionStorage.removeItem('gx.u'); } } catch (e) { /* no storage */ } /* the name typed on the card inside the program (or in a link) */
+  PREF_U = U;
+  if (D.kind === 'gate' && P.get('c')) { /* a code typed on the card inside the program (or sent as a link) wins over what this device remembers */
+    busy(true); say('جارٍ التحقق من الكود…');
+    try { await byCode(P.get('c'), U); return; } catch (e) { form(); return fail(codeMsg(e)); }
+  }
+  const ck = LS.get(CK);
+  if (ck) {
+    busy(true); say('جارٍ فتح البرنامج…');
+    try {
+      if (D.kind === 'dev') await open_(u8(ck), 'dev', false);
+      else { const i = ck.indexOf('.'); await open_(u8(ck.slice(i + 1)), ck.slice(0, i), false); }
+      return;
+    } catch (e) { LS.del(CK); }
+  }
+  form();
+})();
+})();
+</script></body></html>
