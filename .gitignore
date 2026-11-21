@@ -1,0 +1,19 @@
+# Secrets and test key material — never commit these
+/keys/
+/keys-*/
+/backup/
+/_work/
+/pushtest/
+/page.html
+vault.json
+server.gs
+/dist/
+/dist-*/
+/pub/
+/app-shell.html
+/upload/
+/src/
+/tools/
+/desktop/
+/i18n/
+/mac-app/
