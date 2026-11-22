@@ -1,4 +1,4 @@
-/* Service worker of the accounts program (v8.64) — its ONLY job: when the phone's push service says "an alarm is due", wake up and show a notice.
+/* Service worker of the accounts program (v8.67) — its ONLY job: when the phone's push service says "an alarm is due", wake up and show a notice.
    Public file: it holds no key, no code and no data of the program. The names / times of the alarms are written by the page into this browser's own
    storage (IndexedDB "rm-push"); this file only reads them. Nothing here talks to any server. */
 'use strict';
